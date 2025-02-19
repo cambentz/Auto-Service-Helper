@@ -1,12 +1,14 @@
 const pg = require('pg');
 const { Pool, Client } = pg;
 
+require('dotenv').config();
+
 const pool = new Pool({
-    user: 'postgres',
-    password: 'postgres',
-    host: 'localhost',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
     database: 'auto-service-helper',
-    port: 5432
+    port: process.env.DB_PORT
 });
 
 let tableQueries = [];
@@ -92,11 +94,11 @@ async function deleteAllTables() {
 async function createDatabase() {
     // you need to connect to the postgres db first before making a new one
     const client = new Client({
-        user: 'postgres',
-        password: 'postgres',
-        host: 'localhost',
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        host: process.env.DB_HOST,
         database: 'postgres',
-        port: 5432
+        port: process.env.DB_PORT
     });
 
     await client.connect();

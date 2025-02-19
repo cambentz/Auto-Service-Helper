@@ -7,6 +7,8 @@
     in the application will be deleted, then re-created.
 */
 
+require('dotenv').config();
+
 const setupQueries = require('./setupQueries.js');
 
 console.log('Setup started.');
