@@ -1,25 +1,41 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp/
 .pnp.js
-/dist
-.vite
 
-# testing
-/coverage
+# Vite
+dist/
+.vite/
 
-# production
-/build
+# Testing
+coverage/       # Jest coverage reports
+*.spec.js       # Optional: Ignore test files if desired
+*.test.js       # Optional: Ignore test files if desired
+jest.setup.js   # Jest setup file if not needed in version control
 
-# misc
-.DS_Store
+# Build Output
+build/
+
+# Environment Files
+.env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.env.*          # Catch-all for any other env variants
 
-npm-debug.log*
+# Editor & System Files
+.DS_Store       # macOS
+Thumbs.db       # Windows
+*.log           # Log files
+*.swp           # Vim swap files
+*.swo           # Vim swap files
+*.bak           # Backup files
+*.tmp           # Temporary files
+
+# Miscellaneous
+npm-debug.log*  # npm debug files
 yarn-debug.log*
 yarn-error.log*
