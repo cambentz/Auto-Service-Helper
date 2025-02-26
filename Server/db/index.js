@@ -12,6 +12,7 @@ const pool = new Pool({
     ssl: {
         rejectUnauthorized: false,
     },
+    connectionTimeoutMillis: 10000
 });
 
 module.exports = {pool};
