@@ -17,3 +17,11 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log('Listening on port ' + port);
 });
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at: ', promise, 'reason: ', reason);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception: ', err);
+})
