@@ -33,6 +33,17 @@ async function createGuide(name, description, thumbnail) {
     }
 }
 
+async function deleteGuide(id) {
+    const query = "DELETE FROM guides WHERE guide_id = $1 RETURNING *";
+    try {
+        let result = await pool.query(query, [id]);
+        return result.rows[0];
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
 async function getStep(guideId, stepNum) {
     const query = "SELECT * FROM steps WHERE guide_id = $1 AND step_num = $2";
     try {
@@ -66,4 +77,15 @@ async function createStep(guideId, stepNum, description, media) {
     }
 }
 
-module.exports = { getAllGuides, createGuide, getGuideById, getStep, getSteps, createStep }
+async function deleteStep(guideId, stepNum) {
+    const query = "DELETE FROM steps WHERE guide_id = $1 AND step_num = $2 RETURNING *";
+    try {
+        let result = await pool.query(query, [guideId, stepNum]);
+        return result.rows;
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
+module.exports = { getAllGuides, createGuide, getGuideById, getStep, getSteps, createStep, deleteGuide, deleteStep }

@@ -38,6 +38,18 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.delete('/:id', async (req, res) => {
+    const { id } = req.params;
+
+    let result = await guideQueries.deleteGuide(id);
+    if (result) {
+        return res.json(result);
+    }
+    else {
+        return res.status(500).json({ error: 'Error deleting guide'})
+    }
+});
+
 router.get('/:id/steps', async (req, res) => {
     const { id } = req.params;
     let steps = await guideQueries.getSteps(id);
@@ -68,6 +80,25 @@ router.post('/:id/steps', async (req, res) => {
     }
     else {
         return res.status(500).json({ error: 'Error creating step'})
+    }
+});
+
+router.delete('/:id/steps/:stepNum', async (req, res) => {
+    const { id, stepNum } = req.params;
+
+    if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
+    let checkStep = await guideQueries.getStep(id, stepNum);
+
+    if (checkStep.length < 1) {
+        return res.status(400).json({ error: 'Step not found.'});
+    }
+
+    let result = await guideQueries.deleteStep(id, stepNum);
+    if (result) {
+        return res.json(result);
+    }
+    else {
+        return res.status(500).json({ error: 'Error deleting guide'})
     }
 });
 
