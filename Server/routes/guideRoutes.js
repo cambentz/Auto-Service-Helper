@@ -13,10 +13,21 @@ router.get('/', async (req, res) => {
     res.json(guides);
 });
 
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    let guides = await guideQueries.getGuideById(id);
+
+    if (!guides || guides.length === 0) {
+        return res.status(404).json({ error: 'No guides found'});
+    }
+
+    res.json(guides);
+});
+
 router.post('/', async (req, res) => {
     const { name, description, thumbnail } = req.body;
 
-    if (!name || !name.trim()) return res.status(400).json({ error: 'Name not provided'});
+    if (!name || !name.trim()) return res.status(400).json({ error: 'Invalid name'});
 
     let result = await guideQueries.createGuide(name, description, thumbnail);
     if (result) {
@@ -24,6 +35,39 @@ router.post('/', async (req, res) => {
     }
     else {
         return res.status(500).json({ error: 'Error creating guide'})
+    }
+});
+
+router.get('/:id/steps', async (req, res) => {
+    const { id } = req.params;
+    let steps = await guideQueries.getSteps(id);
+
+    if (!steps || steps.length === 0) {
+        return res.status(404).json({ error: 'No steps found'});
+    }
+
+    res.json(steps);
+});
+
+router.post('/:id/steps', async (req, res) => {
+    const { id } = req.params;
+    const { stepNum, description, media } = req.body;
+
+    if (!stepNum || !parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
+    if (!description || !description.trim()) return res.status(400).json({ error: 'Invalid description'});
+
+    let checkStep = await guideQueries.getStep(id, stepNum);
+
+    if (checkStep.length > 0) {
+        return res.status(400).json({ error: 'Guide already has step number ' + stepNum});
+    }
+
+    let result = await guideQueries.createStep(id, stepNum, description, media);
+    if (result) {
+        return res.json(result);
+    }
+    else {
+        return res.status(500).json({ error: 'Error creating step'})
     }
 });
 
