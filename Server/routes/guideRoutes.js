@@ -67,7 +67,7 @@ router.put('/:id', async (req, res) => {
         return res.status(400).json({ error: 'Guide does not exist'});
     }
 
-    if (name) {
+    if (name || name === "") {
         if (!name.trim()) return res.status(400).json({ error: 'Invalid name'});
     }
 
@@ -78,7 +78,7 @@ router.put('/:id', async (req, res) => {
     else {
         return res.status(500).json({ error: 'Error updating guide'})
     }
-})
+});
 
 router.get('/:id/steps', async (req, res) => {
     const { id } = req.params;
@@ -104,7 +104,7 @@ router.post('/:id/steps', async (req, res) => {
 
     let checkStep = await guideQueries.getStep(id, stepNum);
 
-    if (checkStep.length > 0) {
+    if (checkStep) {
         return res.status(400).json({ error: 'Guide already has step number ' + stepNum});
     }
 
@@ -124,7 +124,7 @@ router.delete('/:id/steps/:stepNum', async (req, res) => {
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
     let checkStep = await guideQueries.getStep(id, stepNum);
 
-    if (checkStep.length < 1) {
+    if (!checkStep) {
         return res.status(400).json({ error: 'Step not found.'});
     }
 
@@ -134,6 +134,44 @@ router.delete('/:id/steps/:stepNum', async (req, res) => {
     }
     else {
         return res.status(500).json({ error: 'Error deleting guide'})
+    }
+});
+
+router.put('/:id/steps/:stepNum', async (req, res) => {
+    const { id, stepNum } = req.params;
+    const { description, media } = req.body;
+    const newStepNum = req.body.stepNum;
+
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+    if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
+
+    let oldStep = await guideQueries.getStep(id, stepNum);
+
+    if (!oldStep) {
+        return res.status(400).json({ error: 'Step not found.'});
+    }
+
+    if (description || description === "") {
+        if (!description.trim()) return res.status(400).json({ error: 'Invalid description'});
+    };
+
+    if (newStepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
+
+    if (newStepNum || newStepNum === "") {
+        if (!parseInt(newStepNum)) return res.status(400).json({ error: 'Invalid step number'});
+
+        let checkStep = await guideQueries.getStep(id, newStepNum);
+        if (checkStep) {
+            return res.status(400).json({ error: 'Guide already has step number ' + newStepNum});
+        }
+    }
+
+    let result = await guideQueries.updateStep(id, stepNum, newStepNum ?? oldStep.step_num, description || oldStep.description, media ?? oldStep.media);
+    if (result) {
+        return res.json(result);
+    }
+    else {
+        return res.status(500).json({ error: 'Error updating step'})
     }
 });
 

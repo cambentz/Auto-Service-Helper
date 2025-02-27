@@ -59,7 +59,7 @@ async function getStep(guideId, stepNum) {
     const query = "SELECT * FROM steps WHERE guide_id = $1 AND step_num = $2";
     try {
         let result = await pool.query(query, [guideId, stepNum]);
-        return result.rows;
+        return result.rows[0];
     } catch (err) {
         console.error(err);
         return false;
@@ -99,4 +99,15 @@ async function deleteStep(guideId, stepNum) {
     }
 }
 
-module.exports = { getAllGuides, createGuide, getGuideById, getStep, getSteps, createStep, deleteGuide, deleteStep, updateGuide }
+async function updateStep(guideId, stepNum, newStepNum, description, media) {
+    const query = "UPDATE steps SET step_num = $1, description = $2, media = $3 WHERE guide_id = $4 AND step_num = $5 RETURNING *";
+    try {
+        let result = await pool.query(query, [newStepNum, description, media, guideId, stepNum]);
+        return result.rows[0];
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+}
+
+module.exports = { getAllGuides, createGuide, getGuideById, getStep, getSteps, createStep, deleteGuide, deleteStep, updateGuide, updateStep }
