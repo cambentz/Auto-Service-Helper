@@ -20,7 +20,7 @@ router.get('/:id', async (req, res) => {
 
     let guides = await guideQueries.getGuideById(id);
 
-    if (!guides || guides.length === 0) {
+    if (!guides) {
         return res.status(404).json({ error: 'No guides found'});
     }
 
@@ -54,6 +54,31 @@ router.delete('/:id', async (req, res) => {
         return res.status(500).json({ error: 'Error deleting guide'})
     }
 });
+
+router.put('/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, description, thumbnail } = req.body;
+
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+
+    let oldGuide = await guideQueries.getGuideById(id);
+
+    if (!oldGuide) {
+        return res.status(400).json({ error: 'Guide does not exist'});
+    }
+
+    if (name) {
+        if (!name.trim()) return res.status(400).json({ error: 'Invalid name'});
+    }
+
+    let result = await guideQueries.updateGuide(id, name ?? oldGuide.name, description ?? oldGuide.description, thumbnail ?? oldGuide.thumbnail);
+    if (result) {
+        return res.json(result);
+    }
+    else {
+        return res.status(500).json({ error: 'Error updating guide'})
+    }
+})
 
 router.get('/:id/steps', async (req, res) => {
     const { id } = req.params;
