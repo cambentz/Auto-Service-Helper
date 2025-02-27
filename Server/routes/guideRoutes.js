@@ -59,6 +59,7 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params;
     const { name, description, thumbnail } = req.body;
 
+    // param validation
     if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
 
     let oldGuide = await guideQueries.getGuideById(id);
@@ -67,10 +68,12 @@ router.put('/:id', async (req, res) => {
         return res.status(400).json({ error: 'Guide does not exist'});
     }
 
+    // body validation
     if (name || name === "") {
         if (!name.trim()) return res.status(400).json({ error: 'Invalid name'});
     }
 
+    // replace any unprovided arguments with the current values
     let result = await guideQueries.updateGuide(id, name ?? oldGuide.name, description ?? oldGuide.description, thumbnail ?? oldGuide.thumbnail);
     if (result) {
         return res.json(result);
@@ -98,12 +101,15 @@ router.post('/:id/steps', async (req, res) => {
     const { id } = req.params;
     const { stepNum, description, media } = req.body;
 
+    // param validation
     if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+
+    // body validation
     if (!stepNum || !parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
     if (!description || !description.trim()) return res.status(400).json({ error: 'Invalid description'});
 
+    // check for duplicate
     let checkStep = await guideQueries.getStep(id, stepNum);
-
     if (checkStep) {
         return res.status(400).json({ error: 'Guide already has step number ' + stepNum});
     }
@@ -120,10 +126,12 @@ router.post('/:id/steps', async (req, res) => {
 router.delete('/:id/steps/:stepNum', async (req, res) => {
     const { id, stepNum } = req.params;
 
+    // param validation
     if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
-    let checkStep = await guideQueries.getStep(id, stepNum);
 
+    // check if step exists
+    let checkStep = await guideQueries.getStep(id, stepNum);
     if (!checkStep) {
         return res.status(400).json({ error: 'Step not found.'});
     }
@@ -142,24 +150,28 @@ router.put('/:id/steps/:stepNum', async (req, res) => {
     const { description, media } = req.body;
     const newStepNum = req.body.stepNum;
 
+    // param validation
     if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
 
+    // check if step exists
     let oldStep = await guideQueries.getStep(id, stepNum);
-
     if (!oldStep) {
         return res.status(400).json({ error: 'Step not found.'});
     }
 
+    // body validation
     if (description || description === "") {
         if (!description.trim()) return res.status(400).json({ error: 'Invalid description'});
     };
 
     if (newStepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
 
+    // I hate javascript
     if (newStepNum || newStepNum === "") {
         if (!parseInt(newStepNum)) return res.status(400).json({ error: 'Invalid step number'});
 
+        // check for duplicate
         let checkStep = await guideQueries.getStep(id, newStepNum);
         if (checkStep) {
             return res.status(400).json({ error: 'Guide already has step number ' + newStepNum});
