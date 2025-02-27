@@ -15,6 +15,9 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
+
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+
     let guides = await guideQueries.getGuideById(id);
 
     if (!guides || guides.length === 0) {
@@ -41,6 +44,8 @@ router.post('/', async (req, res) => {
 router.delete('/:id', async (req, res) => {
     const { id } = req.params;
 
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+
     let result = await guideQueries.deleteGuide(id);
     if (result) {
         return res.json(result);
@@ -52,6 +57,9 @@ router.delete('/:id', async (req, res) => {
 
 router.get('/:id/steps', async (req, res) => {
     const { id } = req.params;
+
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
+
     let steps = await guideQueries.getSteps(id);
 
     if (!steps || steps.length === 0) {
@@ -65,6 +73,7 @@ router.post('/:id/steps', async (req, res) => {
     const { id } = req.params;
     const { stepNum, description, media } = req.body;
 
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
     if (!stepNum || !parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
     if (!description || !description.trim()) return res.status(400).json({ error: 'Invalid description'});
 
@@ -86,6 +95,7 @@ router.post('/:id/steps', async (req, res) => {
 router.delete('/:id/steps/:stepNum', async (req, res) => {
     const { id, stepNum } = req.params;
 
+    if (!parseInt(id)) return res.status(400).json({ error: 'Invalid guide ID'});
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: 'Invalid step number'});
     let checkStep = await guideQueries.getStep(id, stepNum);
 
