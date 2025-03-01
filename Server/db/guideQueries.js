@@ -1,7 +1,12 @@
 const { pool } = require('./index.js');
 
-async function getAllGuides() {
-    const query = "SELECT * FROM guides";
+async function getAllGuides(sort=null) {
+    let query;
+
+    if (sort === 'asc') query = 'SELECT * FROM GUIDES ORDER BY name ASC';
+    else if (sort === 'desc') query = 'SELECT * FROM GUIDES ORDER BY name DESC';
+    else query = "SELECT * FROM guides";
+
     try {
         let result = await pool.query(query);
         return result.rows;
