@@ -7,11 +7,10 @@ router.get('/', async (req, res) => {
     let { sort } = req.query;
 
     let guides;
-    let opts = { sort: null };
+    let opts = { sort: null, q: req.query['q'] };
 
     let validSorts = ['asc', 'desc'];
     if (sort) {
-        console.log(sort);
         if (validSorts.includes(sort)) opts.sort = sort;
         else return res.status(400).json({ error: 'Invalid sort query'})
     }

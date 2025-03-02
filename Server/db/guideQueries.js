@@ -2,19 +2,24 @@ const { pool } = require('./index.js');
 
 /*
     * @param {Object} [opts] options to be used for filtering
+    * @param {string} [opts.q] search keyword
     * @param {('asc'|'desc')} [opts.sort] how results should be ordered (by name)
 */
 async function getAllGuides(opts) {
     let query = 'SELECT * FROM GUIDES';
+    let values = [];
 
+    if (opts.q) {
+        values.push('%' + opts.q + '%');
+        query += ` WHERE name ILIKE $${values.length}`;
+    }
     if (opts.sort) {
         if (opts.sort === 'asc') query += ' ORDER BY name ASC';
         else if (opts.sort === 'desc') query += ' ORDER BY name DESC';
     }
-    console.log(query);
 
     try {
-        let result = await pool.query(query);
+        let result = await pool.query(query, values);
         return result.rows;
     } catch (err) {
         console.error(err);
