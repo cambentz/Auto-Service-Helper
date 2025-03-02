@@ -1,11 +1,17 @@
 const { pool } = require('./index.js');
 
-async function getAllGuides(sort=null) {
-    let query;
+/*
+    * @param {Object} [opts] options to be used for filtering
+    * @param {('asc'|'desc')} [opts.sort] how results should be ordered (by name)
+*/
+async function getAllGuides(opts) {
+    let query = 'SELECT * FROM GUIDES';
 
-    if (sort === 'asc') query = 'SELECT * FROM GUIDES ORDER BY name ASC';
-    else if (sort === 'desc') query = 'SELECT * FROM GUIDES ORDER BY name DESC';
-    else query = "SELECT * FROM guides";
+    if (opts.sort) {
+        if (opts.sort === 'asc') query += ' ORDER BY name ASC';
+        else if (opts.sort === 'desc') query += ' ORDER BY name DESC';
+    }
+    console.log(query);
 
     try {
         let result = await pool.query(query);

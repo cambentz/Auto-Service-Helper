@@ -5,21 +5,18 @@ const guideQueries = require('../db/guideQueries.js');
 
 router.get('/', async (req, res) => {
     let { sort } = req.query;
-    let validSorts = ['asc', 'desc'];
 
     let guides;
+    let opts = { sort: null };
 
+    let validSorts = ['asc', 'desc'];
     if (sort) {
-        if (validSorts.includes(sort)) {
-            guides = await guideQueries.getAllGuides(sort);
-        }
-        else {
-            return res.status(400).json({ error: 'Invalid sort query'})
-        }
+        console.log(sort);
+        if (validSorts.includes(sort)) opts.sort = sort;
+        else return res.status(400).json({ error: 'Invalid sort query'})
     }
-    else {
-        guides = await guideQueries.getAllGuides();
-    }
+
+    guides = await guideQueries.getAllGuides(opts);
 
     if (!guides || guides.length === 0) {
         return res.status(404).json({ error: 'No guides found'});
