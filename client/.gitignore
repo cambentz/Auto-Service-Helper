@@ -1,41 +1,45 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# ====================
+# Node.js (Frontend + Backend)
+# ====================
+**/node_modules/
 
-# Dependencies
-node_modules/
-.pnp/
-.pnp.js
+# Environment variables (both sides)
+**/.env
+**/.env.* # .env.production, .env.development, etc.
 
-# Vite
-dist/
-.vite/
+# ====================
+# Frontend (Vite + React)
+# ====================
+client/dist/
+client/.vite/
+client/.cache/
+client/build/
 
-# Testing
-coverage/       # Jest coverage reports
-*.spec.js       # Optional: Ignore test files if desired
-*.test.js       # Optional: Ignore test files if desired
-jest.setup.js   # Jest setup file if not needed in version control
+# ====================
+# Backend (Express + Node)
+# ====================
+server/logs/
+server/debug.log
 
-# Build Output
-build/
+# ====================
+# Testing & Coverage
+# ====================
+coverage/
+*.lcov
 
-# Environment Files
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.env.*          # Catch-all for any other env variants
+# ====================
+# System/Editor Files
+# ====================
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
 
-# Editor & System Files
-.DS_Store       # macOS
-Thumbs.db       # Windows
-*.log           # Log files
-*.swp           # Vim swap files
-*.swo           # Vim swap files
-*.bak           # Backup files
-*.tmp           # Temporary files
-
-# Miscellaneous
-npm-debug.log*  # npm debug files
+# ====================
+# Optional: Misc
+# ====================
+*.log
+npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
