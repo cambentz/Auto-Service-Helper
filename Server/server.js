@@ -1,27 +1,17 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const app = express();
-const port = 3000;
+require('dotenv').config();
+const app = require('./app');
 
-const guideRouter = require('./routes/guideRoutes.js');
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use('/guides', guideRouter);
-
-app.get('/', (req, res) => {
-    res.send('Hello World');
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
 
-app.listen(port, () => {
-    console.log('Listening on port ' + port);
-});
-
+// Global error handling
 process.on('unhandledRejection', (reason, promise) => {
     console.error('Unhandled Rejection at: ', promise, 'reason: ', reason);
 });
 
 process.on('uncaughtException', (err) => {
     console.error('Uncaught Exception: ', err);
-})
+});
