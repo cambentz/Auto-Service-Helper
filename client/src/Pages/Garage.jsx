@@ -1,12 +1,12 @@
 import React from "react";
 
-const Guides = () => {
+const Garage = () => {
   return (
     <div>
-      <h1>Guides Page</h1>
-      <p>Find step-by-step repair guides here.</p>
+      <h1>Garage Page</h1>
+      <p>Manage your vehicles and maintenance history.</p>
     </div>
   );
 };
 
-export default Guides; // 🔴 This was likely missing!
+export default Garage;

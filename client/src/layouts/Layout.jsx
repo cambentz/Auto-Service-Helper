@@ -1,15 +1,20 @@
 import React from "react";
-import Sidebar from "../components/Sidebar";
+import Header from "../components/Header";
 import { Outlet } from "react-router-dom";
 
+/**
+ * Layout component for wrapping routed pages.
+ *
+ * @returns {JSX.Element}
+ */
 const Layout = () => {
   return (
-    <div className="flex">
-      <Sidebar />
-      <main className="ml-64 p-8 w-full bg-gray-800 min-h-screen text-white relative">
+    <>
+      <Header />
+      <main className="w-full bg-neutral-950 text-white min-h-screen">
         <Outlet />
       </main>
-    </div>
+    </>
   );
 };
 

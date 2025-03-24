@@ -9,4 +9,4 @@ const Settings = () => {
   );
 };
 
-export default Settings; // ✅ Ensure this line is present!
+export default Settings;
