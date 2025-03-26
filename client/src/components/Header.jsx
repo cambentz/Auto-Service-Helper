@@ -32,7 +32,7 @@ function Header({ isLoggedIn = false }) {
           {isLoggedIn ? (
             <Link to="/profile" className="text-[#1A3D61] hover:text-[#66CC66] transition">Profile</Link>
           ) : (
-            <Link to="/login" className="text-[#1A3D61] hover:text-[#66CC66] transition">Login / Register</Link>
+            <Link to="/auth" className="text-[#1A3D61] hover:text-[#66CC66] transition">Login / Register</Link>
           )}
         </nav>
 
@@ -83,7 +83,7 @@ function Header({ isLoggedIn = false }) {
               {isLoggedIn ? (
                 <Link to="/profile" className="text-[#1A3D61] hover:text-[#66CC66]">Profile</Link>
               ) : (
-                <Link to="/login" className="text-[#1A3D61] hover:text-[#66CC66]">Login / Register</Link>
+                <Link to="/auth" className="text-[#1A3D61] hover:text-[#66CC66]">Login / Register</Link>
               )}
             </div>
           </motion.nav>
