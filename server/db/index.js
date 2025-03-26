@@ -1,4 +1,4 @@
-const pg = require('pg');
+import pg from 'pg';
 const { Pool } = pg;
 
 require('dotenv').config();
@@ -6,7 +6,7 @@ require('dotenv').config();
 const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    host:process.env.DB_HOST,
+    host: process.env.DB_HOST,
     database: process.env.DB_DATABASE,
     port: process.env.DB_PORT,
     ssl: {
@@ -15,4 +15,4 @@ const pool = new Pool({
     connectionTimeoutMillis: 10000
 });
 
-module.exports = {pool};
+export default { pool };
