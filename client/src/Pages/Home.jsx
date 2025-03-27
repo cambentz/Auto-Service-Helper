@@ -30,22 +30,22 @@ const Home = () => {
     let targetY = 0;
     let currentY = 0;
     let animationFrame;
-  
+
     const lerp = (start, end, factor) => start + (end - start) * factor;
-  
+
     const updateParallax = () => {
       targetY = window.scrollY;
       currentY = lerp(currentY, targetY, 0.21); // Smooth interpolation
-  
+
       if (bgRef.current) {
         bgRef.current.style.transform = `translateY(${currentY * 0.3}px) scale(1.1)`; // mask movement
       }
-  
+
       animationFrame = requestAnimationFrame(updateParallax);
     };
-  
+
     animationFrame = requestAnimationFrame(updateParallax);
-  
+
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
@@ -53,83 +53,60 @@ const Home = () => {
     <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
 
       {/* Hero Section */}
-<section className="relative min-h-[75vh] sm:min-h-[80vh] isolate overflow-hidden">
-  <img
-    ref={bgRef}
-    src={heroBackground}
-    alt="Auto repair background"
-    className="absolute inset-0 -z-10 w-full h-[120%] object-cover object-[center_200%] brightness-50 will-change-transform scale-120"
-  />
+      <section className="relative min-h-[75vh] sm:min-h-[80vh] isolate overflow-hidden">
+        <img
+          ref={bgRef}
+          src={heroBackground}
+          alt="Auto repair background"
+          className="absolute inset-0 -z-10 w-full h-[120%] object-cover object-[center_200%] brightness-50 will-change-transform scale-120"
+        />
 
-  <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32">
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      className="backdrop-blur-sm bg-white/70 border border-gray-200 rounded-xl p-10 shadow-lg max-w-3xl"
-    >
-      <motion.h1
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="text-4xl md:text-5xl font-extrabold leading-tight text-[#1A3D61] mb-4"
-      >
-        Smarter Vehicle Maintenance Starts Here
-      </motion.h1>
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="backdrop-blur-sm bg-white/70 border border-gray-200 rounded-xl p-10 shadow-lg max-w-3xl"
+          >
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-4xl md:text-5xl font-extrabold leading-tight text-[#1A3D61] mb-4"
+            >
+              Smarter Vehicle Maintenance Starts Here
+            </motion.h1>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.4 }}
-        className="text-lg md:text-xl text-gray-700 mb-8"
-      >
-        Built for home and professional mechanics. Track. Guide. Maintain.
-      </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-lg md:text-xl text-gray-700 mb-8"
+            >
+              Built for home and professional mechanics. Track. Guide. Maintain.
+            </motion.p>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="flex flex-wrap justify-center gap-4"
-      >
-        <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
-          Browse Guides
-        </button>
-
-        <Link to="/add-vehicle">
-          <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
-            Enter Vehicle Info
-          </button>
-        </Link>
-      </motion.div>
-    </motion.div>
-  </div>
-</section>
-
-<<<<<<< Updated upstream
-=======
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
               className="flex flex-wrap justify-center gap-4"
             >
-              <Link to="/guides">
-                <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
-                  Browse Guides
+              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
+                Browse Guides
+              </button>
+
+              <Link to="/add-vehicle">
+                <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
+                  Enter Vehicle Info
                 </button>
               </Link>
-              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
-                Enter Vehicle Info
-              </button>
             </motion.div>
           </motion.div>
         </div>
       </section>
->>>>>>> Stashed changes
-
       {/* Features */}
-      <section className="w-full py-20 px-6 sm:px-12 bg-white">
+      < section className="w-full py-20 px-6 sm:px-12 bg-white" >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12 text-[#1A3D61]">Key Features</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -165,10 +142,10 @@ const Home = () => {
             </FadeInOnView>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* How It Works */}
-      <section className="w-full py-20 px-6 sm:px-12 bg-[#F8F8F8]">
+      < section className="w-full py-20 px-6 sm:px-12 bg-[#F8F8F8]" >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12 text-[#1A3D61]">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-8 text-left">
@@ -198,10 +175,10 @@ const Home = () => {
             </FadeInOnView>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Partners */}
-      <section className="w-full py-16 px-6 sm:px-12 bg-white text-center">
+      < section className="w-full py-16 px-6 sm:px-12 bg-white text-center" >
         <h2 className="text-2xl font-bold text-[#1A3D61] mb-4">Our Partners</h2>
         <p className="mb-10 text-gray-600">
           We collaborate with leading tech providers, parts manufacturers, and community infrastructure partners.
@@ -211,8 +188,8 @@ const Home = () => {
           <img src={partner2} alt="Partner 2" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
           <img src={partner3} alt="Partner 3" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 };
 
