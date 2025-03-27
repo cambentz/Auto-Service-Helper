@@ -10,7 +10,9 @@ import { isStrongPassword, getPasswordStrength, strengthColors, strengthLabels }
 const Auth = () => {
   const location = useLocation();
   const [mode, setMode] = useState(() => location.state?.mode || "login");
-  const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "", name: "" });
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -20,14 +22,18 @@ const Auth = () => {
   const toggleMode = () => {
     setMode((prev) => (prev === "login" ? "register" : "login"));
     setError(null);
-    setFormData({ email: "", password: "", confirmPassword: "", name: "" });
+    setFormData({ email: "", password: "" });
+    setConfirmPassword("");
+    setName("");
   };
 
   // Switch to password reset mode
   const switchToReset = () => {
     setMode("reset");
     setError(null);
-    setFormData({ email: "", password: "", confirmPassword: "", name: "" });
+    setFormData({ email: "", password: "" });
+    setConfirmPassword("");
+    setName("");
   };
 
   // Sync state with route location
@@ -39,7 +45,10 @@ const Auth = () => {
 
   // Handle input changes
   const handleChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    if (name === "name") setName(value);
+    else if (name === "confirmPassword") setConfirmPassword(value);
+    else setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Form submission handler
@@ -50,7 +59,7 @@ const Auth = () => {
 
     // Validate passwords if registering
     if (mode === "register") {
-      if (formData.password !== formData.confirmPassword) {
+      if (formData.password !== confirmPassword) {
         setError("Passwords do not match.");
         setLoading(false);
         return;
@@ -65,25 +74,32 @@ const Auth = () => {
 
     // Choose endpoint based on mode
     const endpoint =
-      mode === "login"
-        ? "/api/auth/login"
-        : mode === "register"
-          ? "/api/auth/register"
-          : "/api/auth/forgot-password";
+    mode === "login"
+      ? "/api/auth/login"
+      : mode === "register"
+        ? "/api/auth/register"
+        : "/api/auth/forgot-password";
 
-    try {
-      const res = await api.post(endpoint, formData);
-      console.log("Auth Success:", res.data);
-      if (mode === "reset") {
-        setMode("login");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Something went wrong.");
-    } finally {
-      setLoading(false);
+  const payload =
+    mode === "login"
+      ? { email: formData.email, password: formData.password }
+      : mode === "register"
+        ? { ...formData, name, confirmPassword }
+        : { email: formData.email };
+
+  try {
+    const res = await api.post(endpoint, payload);
+    console.log("Auth Success:", res.data);
+    if (mode === "reset") {
+      setMode("login");
     }
-  };
+  } catch (err) {
+    console.error(err);
+    setError(err.response?.data?.message || "Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const passwordStrength = getPasswordStrength(formData.password);
 
@@ -108,11 +124,12 @@ const Auth = () => {
               id="name"
               name="name"
               placeholder="Full Name"
-              value={formData.name}
+              value={name}
               onChange={handleChange}
               required
             />
           )}
+
 
           {/* Email input */}
           <InputField
@@ -178,7 +195,7 @@ const Auth = () => {
                   name="confirmPassword"
                   type={showConfirm ? "text" : "password"}
                   placeholder="Re-enter your new password"
-                  value={formData.confirmPassword}
+                  value={confirmPassword}
                   onChange={handleChange}
                   required
                 />
@@ -196,13 +213,13 @@ const Auth = () => {
           {/* Forgot password link */}
           {mode === "login" && (
             <button
-              type="button"
-              onClick={switchToReset}
-              className="text-blue-500 hover:underline text-sm inline-block mt-2"
-            >
-              Forgot Password?
-            </button>
-          )}
+            type="button"
+            onClick={switchToReset}
+            className="text-blue-500 hover:underline text-sm inline-block mt-2"
+          >
+            Forgot Password?
+          </button>
+        )}
 
           {/* Error message */}
           {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
