@@ -22,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/guides', guideRoutes);
 app.use('/api/users', userRoutes);
 
+
 // Health check + default root route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'Gesture Garage API is running' });
