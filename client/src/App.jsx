@@ -8,6 +8,7 @@ import Help from "./Pages/Help";
 import Auth from "./Pages/Auth";
 import Settings from "./Pages/Settings";
 import ResetPassword from './Pages/ResetPassword';
+import AddVehiclePage from "./Pages/AddVehiclePage";
 
 const App = () => {
   return (
@@ -23,6 +24,7 @@ const App = () => {
           <Route path="auth" element={<Auth />} />
           <Route path="reset-password" element={<ResetPassword />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="/add-vehicle" element={<AddVehiclePage />} />
         </Route>
       </Routes>
     </Router>

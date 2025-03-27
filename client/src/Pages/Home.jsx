@@ -5,6 +5,7 @@ import partner3 from "../assets/Placeholder.png";
 import heroBackground from "../assets/heroBackground.png";
 import { motion, useInView } from "motion/react";
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const FadeInOnView = ({ children, delay = 0 }) => {
   const ref = useRef(null);
@@ -52,55 +53,59 @@ const Home = () => {
     <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
 
       {/* Hero Section */}
-      <section className="relative min-h-[75vh] sm:min-h-[80vh] isolate overflow-hidden">
-        <img
-          ref={bgRef}
-          src={heroBackground}
-          alt="Auto repair background"
-          className="absolute inset-0 -z-10 w-full h-[120%] object-cover object-[center_200%] brightness-50 will-change-transform scale-120"
-          />
+<section className="relative min-h-[75vh] sm:min-h-[80vh] isolate overflow-hidden">
+  <img
+    ref={bgRef}
+    src={heroBackground}
+    alt="Auto repair background"
+    className="absolute inset-0 -z-10 w-full h-[120%] object-cover object-[center_200%] brightness-50 will-change-transform scale-120"
+  />
 
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="backdrop-blur-sm bg-white/70 border border-gray-200 rounded-xl p-10 shadow-lg max-w-3xl"
-          >
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-4xl md:text-5xl font-extrabold leading-tight text-[#1A3D61] mb-4"
-            >
-              Smarter Vehicle Maintenance Starts Here
-            </motion.h1>
+  <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32">
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="backdrop-blur-sm bg-white/70 border border-gray-200 rounded-xl p-10 shadow-lg max-w-3xl"
+    >
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="text-4xl md:text-5xl font-extrabold leading-tight text-[#1A3D61] mb-4"
+      >
+        Smarter Vehicle Maintenance Starts Here
+      </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg md:text-xl text-gray-700 mb-8"
-            >
-              Built for home and professional mechanics. Track. Guide. Maintain.
-            </motion.p>
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        className="text-lg md:text-xl text-gray-700 mb-8"
+      >
+        Built for home and professional mechanics. Track. Guide. Maintain.
+      </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex flex-wrap justify-center gap-4"
-            >
-              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
-                Browse Guides
-              </button>
-              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
-                Enter Vehicle Info
-              </button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="flex flex-wrap justify-center gap-4"
+      >
+        <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
+          Browse Guides
+        </button>
+
+        <Link to="/add-vehicle">
+          <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
+            Enter Vehicle Info
+          </button>
+        </Link>
+      </motion.div>
+    </motion.div>
+  </div>
+</section>
+
 
       {/* Features */}
       <section className="w-full py-20 px-6 sm:px-12 bg-white">
