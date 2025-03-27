@@ -12,7 +12,7 @@ import {
 
 import { hashPassword, comparePasswords } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
-import { sendResetEmail, sendWelcomeEmail } from "../utils/emailService.js";  
+import { sendResetEmail, sendWelcomeEmail } from "../utils/emailService.js";
 import crypto from 'crypto';
 
 
