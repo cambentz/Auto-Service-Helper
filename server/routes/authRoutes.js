@@ -2,7 +2,12 @@
  * Routes for user authentication.
  */
 import express from "express";
-import { register, loginUser } from "../controllers/authController.js";
+import {
+    register,
+    loginUser,
+    resetPassword,
+    requestPasswordReset
+} from "../controllers/authController.js";
 
 const router = express.Router();
 
@@ -19,5 +24,12 @@ router.post("/register", register);
  * @access Public
  */
 router.post("/login", loginUser);
+
+/**
+ * @route POST /api/auth/reset-password-reset
+ * @desc Reset a password for an existing account
+ * @access Public
+ */
+router.post('/request-password-reset', requestPasswordReset);
 
 export default router;

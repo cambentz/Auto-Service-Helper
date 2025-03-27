@@ -1,9 +1,19 @@
 /**
  * Controller functions for user authentication.
  */
-import { registerUser, getUserByEmail } from "../db/authQueries.js";
+import {
+    registerUser,
+    getUserByEmail,
+    getUserByResetToken,
+    updateUserPassword,
+    saveResetToken,
+    clearResetToken
+} from "../db/authQueries.js";
+
 import { hashPassword, comparePasswords } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
+import { sendResetEmail } from "../utils/emailService.js";  
+import crypto from 'crypto';
 
 
 /**
@@ -47,5 +57,58 @@ export async function loginUser(req, res) {
     } catch (err) {
         console.error("Error logging in user:", err);
         res.status(500).json({ message: "Server error", error: err.message });
+    }
+}
+
+/**
+ * Handles a user's password reset request by generating a secure token and emailing them a reset link.
+ */
+export async function requestPasswordReset(req, res) {
+    const { email } = req.body;
+
+    try {
+        const user = await getUserByEmail(email);
+
+        if (!user) {
+            return res.status(404).json({ error: 'No user found with that email address.' });
+        }
+
+        const token = crypto.randomBytes(32).toString('hex');
+        const tokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour from now
+
+        await saveResetToken(email, token, tokenExpiry);
+
+        const resetLink = `https://gesture-garage.onrender.com/reset-password?token=${token}`;
+        await sendResetEmail(email, resetLink);
+
+        res.status(200).json({ message: 'Password reset link sent to your email.' });
+    } catch (err) {
+        console.error('Password reset error:', err);
+        res.status(500).json({ error: 'Something went wrong while processing your request.' });
+    }
+}
+
+/**
+* Reset the user's password given a valid token and new password.
+*/
+export async function resetPassword(req, res) {
+    const { token, newPassword } = req.body;
+
+    try {
+        const user = await getUserByResetToken(token);
+
+        if (!user || new Date(user.reset_token_expires) < new Date()) {
+            return res.status(400).json({ error: 'Invalid or expired token.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await updateUserPassword(user.id, hashedPassword);
+        await clearResetToken(user.id);
+
+        res.status(200).json({ message: 'Password has been reset successfully.' });
+    } catch (err) {
+        console.error('Reset password error:', err);
+        res.status(500).json({ error: 'Failed to reset password.' });
     }
 }

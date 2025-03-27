@@ -17,7 +17,8 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "resend": "^4.2.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

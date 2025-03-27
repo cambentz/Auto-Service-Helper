@@ -8,6 +8,7 @@ import {
     deleteUser,
     getUserHashedPassword
 } from "../db/userQueries.js";
+
 import { comparePasswords, hashPassword } from "../utils/password.js";
 
 /**
