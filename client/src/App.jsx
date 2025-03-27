@@ -5,8 +5,9 @@ import Home from "./Pages/Home";
 import Garage from "./Pages/Garage";
 import Guides from "./Pages/Guides";
 import Help from "./Pages/Help";
-import Login from "./Pages/Login";
+import Auth from "./Pages/Auth";
 import Settings from "./Pages/Settings";
+import ResetPassword from './Pages/ResetPassword';
 
 const App = () => {
   return (
@@ -19,7 +20,8 @@ const App = () => {
           <Route path="garage" element={<Garage />} />
           <Route path="guides" element={<Guides />} />
           <Route path="help" element={<Help />} />
-          <Route path="login" element={<Login />} />
+          <Route path="auth" element={<Auth />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route path="settings" element={<Settings />} />
         </Route>
       </Routes>
