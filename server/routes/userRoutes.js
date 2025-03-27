@@ -1,81 +1,40 @@
-const express = require('express');
-const { authenticateToken } = require('../middleware/auth');
-const { getUserProfile, updateUserProfile, changeUserPassword, deleteUser, validateUserPassword } = require('../db/authQueries');
+import express from "express";
+import {
+    getProfile,
+    updateProfile,
+    changePassword,
+    deleteAccount,
+} from "../controllers/userController.js";
+import { authenticateToken } from "../middleware/auth.js";
 
 const router = express.Router();
 
-/** 
- * Route for user profile retrieval.
- * Requires authentication.
+/**
+ * @route GET /api/users/profile
+ * @desc Get the authenticated user's profile
+ * @access Private
  */
-router.get('/profile', authenticateToken, async (req, res) => {
-    try {
-        const user = await getUserProfile(req.user.id);
-        res.json(user);
-    } catch (err) {
-        console.error('Error fetching user profile:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
-
-/** 
- * Route for updating user profile.
- * Requires authentication.
- */
-router.put('/profile', authenticateToken, async (req, res) => {
-    try {
-        const { username, email } = req.body;
-        const updatedUser = await updateUserProfile(req.user.id, username, email);
-        res.json(updatedUser);
-    } catch (err) {
-        console.error('Error updating user profile:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+router.get("/profile", authenticateToken, getProfile);
 
 /**
- * Route for changing user password.
- * Requires authentication.
+ * @route PUT /api/users/profile
+ * @desc Update the authenticated user's profile
+ * @access Private
  */
-router.put('/change-password', authenticateToken, async (req, res) => {
-    try {
-        const { currentPassword, newPassword } = req.body;
-        
-        // Validate current password before updating
-        const isValid = await validateUserPassword(req.user.id, currentPassword);
-        if (!isValid) {
-            return res.status(400).json({ message: 'Current password is incorrect' });
-        }
-        
-        await changeUserPassword(req.user.id, newPassword); 
-        res.json({ message: 'Password updated successfully' });
-    } catch (err) {
-        console.error('Error changing user password:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+router.put("/profile", authenticateToken, updateProfile);
 
 /**
- * Route for deleting user account.
- * Requires authentication.
+ * @route PUT /api/users/change-password
+ * @desc Change the authenticated user's password
+ * @access Private
  */
-router.delete('/delete', authenticateToken, async (req, res) => {
-    try {
-        const { currentPassword } = req.body;
-        
-        // Validate current password before deleting account
-        const isValid = await validateUserPassword(req.user.id, currentPassword);
-        if (!isValid) {
-            return res.status(400).json({ message: 'Current password is incorrect' });
-        }
-        
-        await deleteUser(req.user.id); 
-        res.json({ message: 'User account deleted' });
-    } catch (err) {
-        console.error('Error deleting user:', err);
-        res.status(500).json({ message: 'Server error' });
-    }
-});
+router.put("/change-password", authenticateToken, changePassword);
 
-// Export user-related routes
-module.exports = router;
+/**
+ * @route DELETE /api/users/delete
+ * @desc Delete the authenticated user's account
+ * @access Private
+ */
+router.delete("/delete", authenticateToken, deleteAccount);
+
+export default router;
