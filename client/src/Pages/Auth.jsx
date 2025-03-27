@@ -1,54 +1,54 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import api from "../utils/api";
 import InputField from "../components/InputField";
 import Button from "../components/Button";
 import Loader from "../components/Loader";
+import { useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from "lucide-react";
+import { isStrongPassword, getPasswordStrength, strengthColors, strengthLabels } from "../utils/password";
 
 const Auth = () => {
-  const [mode, setMode] = useState("login");
+  const location = useLocation();
+  const [mode, setMode] = useState(() => location.state?.mode || "login");
   const [formData, setFormData] = useState({ email: "", password: "", confirmPassword: "", name: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // Toggle between login and register modes
   const toggleMode = () => {
     setMode((prev) => (prev === "login" ? "register" : "login"));
     setError(null);
     setFormData({ email: "", password: "", confirmPassword: "", name: "" });
   };
 
+  // Switch to password reset mode
   const switchToReset = () => {
     setMode("reset");
     setError(null);
     setFormData({ email: "", password: "", confirmPassword: "", name: "" });
   };
 
+  // Sync state with route location
+  useEffect(() => {
+    if (location.state?.mode && mode !== location.state.mode) {
+      setMode(location.state.mode);
+    }
+  }, [location]);
+
+  // Handle input changes
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const isStrongPassword = (password) => {
-    const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).{8,}$/;
-    return strongRegex.test(password);
-  };
-
-  const getPasswordStrength = (password) => {
-    let score = 0;
-    if (password.length >= 8) score++;
-    if (/[A-Z]/.test(password)) score++;
-    if (/[a-z]/.test(password)) score++;
-    if (/\d/.test(password)) score++;
-    if (/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password)) score++;
-    return score;
-  };
-
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    // Validate passwords if registering
     if (mode === "register") {
       if (formData.password !== formData.confirmPassword) {
         setError("Passwords do not match.");
@@ -63,15 +63,16 @@ const Auth = () => {
       }
     }
 
+    // Choose endpoint based on mode
     const endpoint =
       mode === "login"
         ? "/api/auth/login"
         : mode === "register"
-        ? "/api/auth/register"
-        : "/api/auth/forgot-password";
+          ? "/api/auth/register"
+          : "/api/auth/forgot-password";
 
     try {
-      const res = await axios.post(endpoint, formData, { withCredentials: true });
+      const res = await api.post(endpoint, formData);
       console.log("Auth Success:", res.data);
       if (mode === "reset") {
         setMode("login");
@@ -85,21 +86,22 @@ const Auth = () => {
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
-  const strengthColors = ["bg-red-400", "bg-orange-400", "bg-yellow-400", "bg-green-400", "bg-green-600"];
-  const strengthLabels = ["Very Weak", "Weak", "Fair", "Strong", "Very Strong"];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-md bg-white p-6 rounded shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8F8F8] px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl">
+        {/* Heading */}
         <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
           {mode === "login"
             ? "Login to GestureGarage"
             : mode === "register"
-            ? "Create a New Account"
-            : "Reset Your Password"}
+              ? "Create a New Account"
+              : "Reset Your Password"}
         </h2>
 
+        {/* Auth Form */}
         <form onSubmit={handleSubmit}>
+          {/* Name input for registration */}
           {mode === "register" && (
             <InputField
               label="Name"
@@ -112,6 +114,7 @@ const Auth = () => {
             />
           )}
 
+          {/* Email input */}
           <InputField
             className="placeholder-gray-500"
             id="email"
@@ -123,6 +126,7 @@ const Auth = () => {
             required
           />
 
+          {/* Password input with toggle */}
           {mode !== "reset" && (
             <div className="relative">
               <InputField
@@ -130,7 +134,7 @@ const Auth = () => {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
+                placeholder="Enter your new password"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -145,8 +149,10 @@ const Auth = () => {
             </div>
           )}
 
+          {/* Password strength & confirmation for registration */}
           {mode === "register" && (
             <>
+              {/* Password strength bar */}
               <div className="mb-3">
                 <div className="w-full h-2 bg-gray-200 rounded">
                   <div
@@ -157,19 +163,21 @@ const Auth = () => {
                 <p className="text-xs mt-1 text-gray-600">
                   {formData.password && strengthLabels[passwordStrength - 1]}
                 </p>
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Password must be at least 8 characters long and include at least one uppercase letter,
-                  one lowercase letter, one number, and one special character.
-                </p>
+                <ul className="text-[11px] text-gray-500 mt-1">
+                  <li>• At least 8 characters</li>
+                  <li>• Includes a number</li>
+                  <li>• Includes a special character (!@#$%)</li>
+                </ul>
               </div>
 
+              {/* Confirm password field */}
               <div className="relative">
                 <InputField
                   className="pr-10"
                   id="confirmPassword"
                   name="confirmPassword"
                   type={showConfirm ? "text" : "password"}
-                  placeholder="Confirm Password"
+                  placeholder="Re-enter your new password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
                   required
@@ -185,6 +193,7 @@ const Auth = () => {
             </>
           )}
 
+          {/* Forgot password link */}
           {mode === "login" && (
             <button
               type="button"
@@ -195,8 +204,10 @@ const Auth = () => {
             </button>
           )}
 
+          {/* Error message */}
           {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
 
+          {/* Submit button or loading spinner */}
           <div className="mt-6">
             {loading ? (
               <Loader message="Processing..." />
@@ -205,13 +216,14 @@ const Auth = () => {
                 {mode === "login"
                   ? "Login"
                   : mode === "register"
-                  ? "Register"
-                  : "Send Reset Link"}
+                    ? "Register"
+                    : "Send Reset Link"}
               </Button>
             )}
           </div>
         </form>
 
+        {/* Mode toggle link */}
         {mode !== "reset" && (
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
