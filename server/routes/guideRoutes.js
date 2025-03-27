@@ -12,7 +12,7 @@ import {
     createStep,
     deleteStep,
     updateStep,
-} from "../controllers/guidesController.js";
+} from "../controllers/guideController.js";
 
 const router = express.Router();
 

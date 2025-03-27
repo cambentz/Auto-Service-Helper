@@ -2,16 +2,16 @@
  *  Functions for guide and step management.
  */
 import {
-    getAllGuides,
-    getGuideById,
-    createGuide,
-    deleteGuide,
-    updateGuide,
-    getSteps,
-    getStep,
-    createStep,
-    deleteStep,
-    updateStep,
+    getAllGuides as getAllGuidesQuery,
+    getGuideById as getGuideByIdQuery,
+    createGuide as createGuideQuery,
+    deleteGuide as deleteGuideQuery,
+    updateGuide as updateGuideQuery,
+    getSteps as getStepsQuery,
+    getStep as getStepQuery,
+    createStep as createStepQuery,
+    deleteStep as deleteStepQuery,
+    updateStep as updateStepQuery,
 } from "../db/guideQueries.js";
 
 /**
@@ -28,7 +28,7 @@ export async function getAllGuides(req, res) {
             opts.sort = sort;
         }
 
-        const guides = await getAllGuides(opts);
+        const guides = await getAllGuidesQuery(opts);
         if (!guides || guides.length === 0) return res.status(404).json({ error: "No guides found" });
 
         res.json(guides);
@@ -44,7 +44,7 @@ export async function getGuideById(req, res) {
     const { id } = req.params;
     if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
 
-    const guide = await getGuideById(id);
+    const guide = await getGuideByIdQuery(id);
     if (!guide) return res.status(404).json({ error: "No guides found" });
 
     res.json(guide);
@@ -57,7 +57,7 @@ export async function createGuide(req, res) {
     const { name, description, thumbnail } = req.body;
     if (!name || !name.trim()) return res.status(400).json({ error: "Invalid name" });
 
-    const result = await createGuide(name, description, thumbnail);
+    const result = await createGuideQuery(name, description, thumbnail);
     if (result) res.json(result);
     else res.status(500).json({ error: "Error creating guide" });
 }
@@ -69,7 +69,7 @@ export async function deleteGuide(req, res) {
     const { id } = req.params;
     if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
 
-    const result = await deleteGuide(id);
+    const result = await deleteGuideQuery(id);
     if (result) res.json(result);
     else res.status(500).json({ error: "Error deleting guide" });
 }
@@ -84,7 +84,7 @@ export async function updateGuide(req, res) {
     // param validation
     if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
 
-    const oldGuide = await getGuideById(id);
+    const oldGuide = await getGuideByIdQuery(id);
     if (!oldGuide) return res.status(400).json({ error: "Guide does not exist" });
 
     // body validation
@@ -93,7 +93,7 @@ export async function updateGuide(req, res) {
     }
 
     // replace any unprovided arguments with the current values
-    const result = await updateGuide(
+    const result = await updateGuideQuery(
         id,
         name ?? oldGuide.name,
         description ?? oldGuide.description,
@@ -110,7 +110,7 @@ export async function getSteps(req, res) {
     const { id } = req.params;
     if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
 
-    const steps = await getSteps(id);
+    const steps = await getStepsQuery(id);
     if (!steps || steps.length === 0)
         return res.status(404).json({ error: "No steps found" });
 
@@ -132,10 +132,10 @@ export async function createStep(req, res) {
     if (!description || !description.trim()) return res.status(400).json({ error: "Invalid description" });
 
     // check for duplicate
-    const checkStep = await getStep(id, stepNum);
+    const checkStep = await getStepQuery(id, stepNum);
     if (checkStep) return res.status(400).json({ error: `Guide already has step number ${stepNum}` });
 
-    const result = await createStep(id, stepNum, description, media);
+    const result = await createStepQuery(id, stepNum, description, media);
     if (result) res.json(result);
     else res.status(500).json({ error: "Error creating step" });
 }
@@ -151,10 +151,10 @@ export async function deleteStep(req, res) {
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: "Invalid step number" });
 
     // check if step exists
-    const checkStep = await getStep(id, stepNum);
+    const checkStep = await getStepQuery(id, stepNum);
     if (!checkStep) return res.status(400).json({ error: "Step not found." });
 
-    const result = await deleteStep(id, stepNum);
+    const result = await deleteStepQuery(id, stepNum);
     if (result) res.json(result);
     else res.status(500).json({ error: "Error deleting guide" });
 }
@@ -172,7 +172,7 @@ export async function updateStep(req, res) {
     if (!parseInt(stepNum) || stepNum < 1) return res.status(400).json({ error: "Invalid step number" });
 
     // check if step exists
-    const oldStep = await getStep(id, stepNum);
+    const oldStep = await getStepQuery(id, stepNum);
     if (!oldStep) return res.status(400).json({ error: "Step not found." });
 
     // body validation
@@ -187,11 +187,11 @@ export async function updateStep(req, res) {
         if (!parseInt(newStepNum)) return res.status(400).json({ error: "Invalid step number" });
 
         // check for duplicate
-        const checkStep = await getStep(id, newStepNum);
+        const checkStep = await getStepQuery(id, newStepNum);
         if (checkStep) return res.status(400).json({ error: `Guide already has step number ${newStepNum}` });
     }
 
-    const result = await updateStep(
+    const result = await updateStepQuery(
         id,
         stepNum,
         newStepNum ?? oldStep.step_num,
