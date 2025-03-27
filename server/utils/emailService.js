@@ -32,3 +32,30 @@ export async function sendResetEmail(to, resetLink) {
         throw err;
     }
 }
+
+/**
+ * Sends a welcome email to a newly registered user.
+ * @param {string} to - Recipient's email.
+ * @param {string} username - Recipient's username.
+ */
+export async function sendWelcomeEmail(to, username) {
+    try {
+        const { error } = await resend.emails.send({
+            from: 'Gesture Garage <onboarding@resend.dev>', // or your verified sender
+            to,
+            subject: 'Welcome to Gesture Garage!',
+            html: `
+          <h2>Hey ${username}, welcome!</h2>
+          <p>Thanks for signing up. You're all set to start using Gesture Garage.</p>
+          <br />
+          <p>– The Gesture Garage Team</p>
+        `,
+        });
+
+        if (error) {
+            console.error('Error sending welcome email:', error);
+        }
+    } catch (err) {
+        console.error('Unexpected error sending welcome email:', err);
+    }
+}

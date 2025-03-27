@@ -12,7 +12,7 @@ import {
 
 import { hashPassword, comparePasswords } from "../utils/password.js";
 import { generateToken } from "../utils/jwt.js";
-import { sendResetEmail } from "../utils/emailService.js";  
+import { sendResetEmail, sendWelcomeEmail } from "../utils/emailService.js";  
 import crypto from 'crypto';
 
 
@@ -29,6 +29,8 @@ export async function register(req, res) {
 
         const hashedPassword = await hashPassword(password);
         const newUser = await registerUser(username, email, hashedPassword);
+
+        await sendWelcomeEmail(email, username);
 
         res.status(201).json(newUser);
     } catch (err) {
