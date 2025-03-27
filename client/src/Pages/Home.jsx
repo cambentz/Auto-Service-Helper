@@ -106,6 +106,27 @@ const Home = () => {
   </div>
 </section>
 
+<<<<<<< Updated upstream
+=======
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="flex flex-wrap justify-center gap-4"
+            >
+              <Link to="/guides">
+                <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
+                  Browse Guides
+                </button>
+              </Link>
+              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
+                Enter Vehicle Info
+              </button>
+            </motion.div>
+          </motion.div>
+        </div>
+      </section>
+>>>>>>> Stashed changes
 
       {/* Features */}
       <section className="w-full py-20 px-6 sm:px-12 bg-white">
