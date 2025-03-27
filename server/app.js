@@ -9,10 +9,26 @@ dotenv.config();
 
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.originalUrl}`);
+  next();
+});
+
 // Middleware
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://gesture-garage.onrender.com'
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
@@ -20,9 +36,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/auth", authRoutes);
-app.use("/guides", guideRoutes);
-app.use("/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/guides", guideRoutes);
+app.use("/api/users", userRoutes);
 
 // Health check + default root route
 app.get("/health", (req, res) => {
