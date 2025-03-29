@@ -198,3 +198,29 @@ export const updateStep = async (guideId, stepNum, newStepNum, description, medi
         return false;
     }
 };
+
+/**
+ * Retrieve all vehicles for a guide along with the vehicle information
+ * @param {id} ID of the guide
+ * @returns {Promise<Array|false>} List of vehicles or false on error.
+ */
+export const getGuideVehicles = async (id) => {
+    const query = `
+    WITH vehicle_complete AS (
+        SELECT vehicles.id AS id, year, models.name AS model, makes.name AS make
+        FROM vehicles
+        JOIN models ON vehicles.model_id = models.id
+        JOIN makes ON models.make_id = makes.id
+    )
+    SELECT id, year, model, make FROM guide_vehicles
+    JOIN vehicle_complete ON (guide_vehicles.vehicle_id = vehicle_complete.id)
+    WHERE guide_id = $1
+    `;
+    try {
+        const result = await pool.query(query, [id]);
+        return result.rows;
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+};

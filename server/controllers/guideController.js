@@ -12,6 +12,7 @@ import {
     createStep as createStepQuery,
     deleteStep as deleteStepQuery,
     updateStep as updateStepQuery,
+    getGuideVehicles as getGuideVehiclesQuery,
 } from "../db/guideQueries.js";
 
 /**
@@ -200,4 +201,17 @@ export async function updateStep(req, res) {
     );
     if (result) res.json(result);
     else res.status(500).json({ error: "Error updating step" });
+}
+
+/*
+ * GET all vehicles associated with a guide. Returns vehicle id, year, make, and model.
+*/
+export async function getGuideVehicles(req, res) {
+    const { id } = req.params;
+    if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
+
+    const vehicles = await getGuideVehiclesQuery(id);
+    if (!vehicles || vehicles.length < 1) return res.status(404).json({ error: "No vehicles found" });
+
+    res.json(vehicles);
 }
