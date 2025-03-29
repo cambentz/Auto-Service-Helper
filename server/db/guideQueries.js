@@ -12,7 +12,7 @@ export const getAllGuides = async (opts) => {
     const values = [];
     const whereClauses = [];
 
-    if (opts.model || opts.make) {
+    if (opts.model || opts.make || opts.year) {
         query += ` JOIN guide_vehicles ON guides.guide_id = guide_vehicles.guide_id
         JOIN vehicles ON guide_vehicles.vehicle_id = vehicles.id
         JOIN models ON vehicles.model_id = models.id
@@ -21,18 +21,23 @@ export const getAllGuides = async (opts) => {
     }
 
     if (opts.model) {
-        values.push(`${opts.model}`);
-        whereClauses.push(`models.id = $${values.length}`)
+        values.push(opts.model);
+        whereClauses.push(`models.id = $${values.length}`);
     }
 
     if (opts.make) {
-        values.push(`${opts.make}`);
-        whereClauses.push(`makes.id = $${values.length}`)
+        values.push(opts.make);
+        whereClauses.push(`makes.id = $${values.length}`);
+    }
+
+    if (opts.year) {
+        values.push(opts.year);
+        whereClauses.push(`vehicles.year = $${values.length}`);
     }
 
     if (opts.q) {
         values.push(`%${opts.q}%`);
-        whereClauses.push(`guides.name ILIKE $${values.length}`)
+        whereClauses.push(`guides.name ILIKE $${values.length}`);
     }
 
     for (let i = 0; i < whereClauses.length; i++) {

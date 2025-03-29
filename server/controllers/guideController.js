@@ -22,7 +22,7 @@ import {
  */
 export async function getAllGuides(req, res) {
     let { sort } = req.query;
-    let opts = { sort: null, q: req.query.q, make: req.query.make, model: req.query.model };
+    let opts = { sort: null, q: req.query.q, make: req.query.make, model: req.query.model, year: req.query.year };
     const validSorts = ["asc", "desc"];
 
     try {
