@@ -8,17 +8,45 @@ import { pool } from './index.js';
  * @returns {Promise<Array|false>} List of guides or false on error.
  */
 export const getAllGuides = async (opts) => {
-    let query = 'SELECT * FROM guides';
+    let query = `SELECT guides.guide_id, guides.name, guides.description, guides.thumbnail FROM guides`;
     const values = [];
+    const whereClauses = [];
+
+    if (opts.model || opts.make) {
+        query += ` JOIN guide_vehicles ON guides.guide_id = guide_vehicles.guide_id
+        JOIN vehicles ON guide_vehicles.vehicle_id = vehicles.id
+        JOIN models ON vehicles.model_id = models.id
+        JOIN makes ON models.make_id = makes.id
+        `;
+    }
+
+    if (opts.model) {
+        values.push(`${opts.model}`);
+        whereClauses.push(`models.id = $${values.length}`)
+    }
+
+    if (opts.make) {
+        values.push(`${opts.make}`);
+        whereClauses.push(`makes.id = $${values.length}`)
+    }
 
     if (opts.q) {
         values.push(`%${opts.q}%`);
-        query += ` WHERE name ILIKE $${values.length}`;
+        whereClauses.push(`guides.name ILIKE $${values.length}`)
+    }
+
+    for (let i = 0; i < whereClauses.length; i++) {
+        if (i === 0) {
+            query += ` WHERE ${whereClauses[i]}`;
+        }
+        else {
+            query += ` AND ${whereClauses[i]}`;
+        }
     }
 
     if (opts.sort) {
-        if (opts.sort === 'asc') query += ' ORDER BY name ASC';
-        else if (opts.sort === 'desc') query += ' ORDER BY name DESC';
+        if (opts.sort === 'asc') query += ' ORDER BY guides.name ASC';
+        else if (opts.sort === 'desc') query += ' ORDER BY guides.name DESC';
     }
 
     try {
