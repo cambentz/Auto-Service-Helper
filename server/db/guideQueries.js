@@ -224,3 +224,41 @@ export const getGuideVehicles = async (id) => {
         return false;
     }
 };
+
+/**
+ * Associate a guide with a vehicle
+ * @param {number} guideId - Guide ID.
+ * @param {number} vehicleId - Vehicle ID.
+ * @returns {Promise<Object|false>} New entry or false on error.
+ */
+export const addGuideVehicle = async (guideId, vehicleId) => {
+    const query = `
+    INSERT INTO guide_vehicles (guide_id, vehicle_id)
+    VALUES ($1, $2)
+    RETURNING *
+    `
+    try {
+        const result = await pool.query(query, [guideId, vehicleId]);
+        return result.rows[0];
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+};
+
+/**
+ * Deletes a guide/vehicle association
+ * @param {number} guideId - Guide ID.
+ * @param {number} vehicleId - Vehicle ID.
+ * @returns {Promise<Object|false>} Deleted entry or false on error.
+ */
+export const deleteGuideVehicle = async (guideId, vehicleId) => {
+    const query = 'DELETE FROM guide_vehicles WHERE guide_id = $1 AND vehicle_id = $2 RETURNING *';
+    try {
+        const result = await pool.query(query, [guideId, vehicleId]);
+        return result.rows[0];
+    } catch (err) {
+        console.error(err);
+        return false;
+    }
+};

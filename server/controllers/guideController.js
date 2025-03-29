@@ -13,6 +13,8 @@ import {
     deleteStep as deleteStepQuery,
     updateStep as updateStepQuery,
     getGuideVehicles as getGuideVehiclesQuery,
+    addGuideVehicle as addGuideVehicleQuery,
+    deleteGuideVehicle as deleteGuideVehicleQuery,
 } from "../db/guideQueries.js";
 
 /**
@@ -214,4 +216,36 @@ export async function getGuideVehicles(req, res) {
     if (!vehicles || vehicles.length < 1) return res.status(404).json({ error: "No vehicles found" });
 
     res.json(vehicles);
+}
+
+/*
+ * POST a vehicle to be associated with a guide
+*/
+export async function addGuideVehicle(req, res) {
+    const { id } = req.params;
+    const { vehicleId } = req.body
+
+    if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
+    if (!parseInt(vehicleId)) return res.status(400).json({ error: "Invalid vehicle ID" });
+
+    const result = await addGuideVehicleQuery(id, vehicleId);
+
+    if (result) res.json(result);
+    else res.status(500).json({ error: "Error adding vehicle to guide" });
+}
+
+/*
+ * DELETE a vehicle/guide association
+*/
+export async function deleteGuideVehicle(req, res) {
+    const { id } = req.params;
+    const { vehicleId } = req.body
+
+    if (!parseInt(id)) return res.status(400).json({ error: "Invalid guide ID" });
+    if (!parseInt(vehicleId)) return res.status(400).json({ error: "Invalid vehicle ID" });
+
+    const result = await deleteGuideVehicleQuery(id, vehicleId);
+
+    if (result) res.json(result);
+    else res.status(500).json({ error: "Error deleting vehicle from guide" });
 }
