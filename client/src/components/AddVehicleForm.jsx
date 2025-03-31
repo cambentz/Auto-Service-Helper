@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+// This component handles both adding and editing a vehicle.
+// Backend devs: Replace all localStorage usage with API/database integration.
+
 
 const AddVehicleForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  // If editing, vehicle and index come from location.state
+  // Backend devs: Adjust this logic when pulling vehicle details from your DB or API
+
   const editing = !!location.state;
   const { vehicle: existingVehicle, index } = location.state || {};
   const [makes, setMakes] = useState([]);
@@ -14,6 +20,7 @@ const AddVehicleForm = () => {
   const [nickname, setNickname] = useState("");
   const [mileage, setMileage] = useState("");
 
+  // Pre-fill the form when editing an existing vehicle
   useEffect(() => {
     if (editing && existingVehicle) {
       setSelectedMake(existingVehicle.make || "");
@@ -25,9 +32,10 @@ const AddVehicleForm = () => {
   }, [editing, existingVehicle]);
 
 
-
+  // Fetch stored unit preference (miles/km)
+  // Backend devs: Replace this with user preference from backend account settings
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
-  const [unitPreference, setUnitPreference] = useState("miles"); // default
+  const [unitPreference, setUnitPreference] = useState("miles");
   useEffect(() => {
     const storedUnits = localStorage.getItem("unitPreference");
     if (storedUnits) {
@@ -35,8 +43,8 @@ const AddVehicleForm = () => {
     }
   }, []);
 
-
-
+  // Fetch and filter popular vehicle makes
+  // Backend devs: You could cache this data server-side or replace with a backend endpoint
   useEffect(() => {
     fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json")
       .then((res) => res.json())
@@ -51,15 +59,13 @@ const AddVehicleForm = () => {
         const filtered = data.Results.filter((make) =>
           popularMakes.includes(make.Make_Name.toLowerCase().replace(/[^a-z]/gi, ""))
         );
-
-
-        // Sort alphabetically
         filtered.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
         setMakes(filtered);
       })
       .catch((err) => console.error("Error fetching makes:", err));
   }, []);
 
+  // Fetch models when a make is selected
   useEffect(() => {
     if (!selectedMake) return;
     fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/GetModelsForMake/${selectedMake}?format=json`)
@@ -76,22 +82,24 @@ const AddVehicleForm = () => {
       year: selectedYear,
       nickname: nickname || null,
       mileage: mileage || null,
-      imageURL: null,
+      imageURL: null, // Placeholder for future image upload
     };
 
+    // Save vehicle data to localStorage for now
+    // Backend devs: Replace this entire block with API POST/PUT request to store vehicle
     const existing = JSON.parse(localStorage.getItem("garageVehicles")) || [];
     let updated;
 
     if (editing && typeof index === "number") {
-      // Update vehicle at specific index
       updated = [...existing];
       updated[index] = vehicleData;
     } else {
-      // Add new vehicle
       updated = [...existing, vehicleData];
     }
 
     localStorage.setItem("garageVehicles", JSON.stringify(updated));
+    // Redirect to garage view
+    // Backend devs: Consider refreshing the vehicle list on redirect
     navigate("/garage");
   };
 

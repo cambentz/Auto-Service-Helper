@@ -1,20 +1,34 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
+/**
+ * Garage page shows all vehicles stored by the user.
+ * 
+ * - Backend Developers:
+ * - Replace all `localStorage` logic with API calls to fetch, update, and delete vehicles from the database.
+ * - Consider associating vehicles with a user ID if authentication is implemented.
+ */
+
 const Garage = () => {
   const [vehicles, setVehicles] = useState([]);
   const [unitPreference, setUnitPreference] = useState("miles");
 
+  // Load vehicles from localStorage on mount
+  // Replace this with GET /api/vehicles or similar
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("garageVehicles")) || [];
     setVehicles(stored);
   }, []);
 
+  // Load unit preference (miles/km)
+  // Replace this with user profile fetch from backend if available
   useEffect(() => {
     const storedUnits = localStorage.getItem("unitPreference");
     if (storedUnits) setUnitPreference(storedUnits);
   }, []);
 
+  // Handle vehicle deletion
+  // Replace this with DELETE /api/vehicles/:id and then refetch or update local state
   const handleDelete = (indexToDelete) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this vehicle and its history? This action cannot be undone."

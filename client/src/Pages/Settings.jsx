@@ -6,6 +6,19 @@ import PolicyModal from "../components/PolicyModal";
 import privacyContent from "../utils/privacyContent";
 import termsContent from "../utils/termsContent";
 
+/**
+ * Settings Page
+ *
+ * This page manages user account info, vehicle preferences, and support/legal access.
+ *
+ * - Backend Developers:
+ * - All data is currently stored in localStorage (e.g., name, unitPreference).
+ * - Replace localStorage with authenticated user profile data from your backend.
+ * - Email is hardcoded for now; should come from backend session.
+ * - Terms and privacy content are imported from local files; replace with dynamic content if needed.
+ * - Support ticket submission (TicketModal) is frontend-only—connect to backend form/email service.
+ */
+
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -15,7 +28,7 @@ const Settings = () => {
 
 
 
-  // Get user name from localStorage or default
+  // Gets user name from localStorage (simulate user profile)
   const storedFirst = localStorage.getItem("userName") || "Gary";
   const [firstName, setFirstName] = useState(storedFirst);
   const storedLast = localStorage.getItem("userLastName") || "";
@@ -25,6 +38,7 @@ const Settings = () => {
 
   const [showTicketModal, setShowTicketModal] = useState(false);
 
+  // Units also saved locally — should sync with backend user settings
   const [unitPreference, setUnitPreference] = useState(
     localStorage.getItem("unitPreference") || "miles"
   );
@@ -32,16 +46,16 @@ const Settings = () => {
   const handleUnitChange = (e) => {
     const newUnit = e.target.value;
     setUnitPreference(newUnit);
-    localStorage.setItem("unitPreference", newUnit);
+    localStorage.setItem("unitPreference", newUnit); // Replace with user update API
   };
 
 
   const handleSaveName = () => {
-    login(firstName);
-    localStorage.setItem("userName", firstName); // optional, but safe
+    login(firstName); // Temporary mock login update
+    localStorage.setItem("userName", firstName);
     localStorage.setItem("userLastName", lastName);
     setSavedMessage("Name saved!");
-    setTimeout(() => setSavedMessage(""), 3000); // Clear message after 3 seconds
+    setTimeout(() => setSavedMessage(""), 3000);
 
   };
 

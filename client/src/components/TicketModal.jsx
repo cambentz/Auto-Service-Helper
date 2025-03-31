@@ -1,5 +1,12 @@
 import React, { useState } from "react";
 
+/**
+ * TicketModal displays a contact form for user support tickets.
+ * Backend devs:
+ * - Replace the `console.log()` in `handleSubmit` with an API call to store or email the ticket.
+ * - Optionally validate and sanitize inputs server-side.
+ */
+
 const TicketModal = ({ isOpen, onClose }) => {
     const [email, setEmail] = useState("");
     const [message, setMessage] = useState("");
@@ -8,6 +15,8 @@ const TicketModal = ({ isOpen, onClose }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // Simulated submission — replace with actual POST request to backend
         console.log("Ticket submitted:", { email, message });
 
         // Clear fields before closing
