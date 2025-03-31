@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "motion/react";
 import { useLocation } from "react-router-dom";
-
+import UserDropdown from "./UserDropdown";
+import { useAuth } from "../utils/AuthContext";
 
 /**
  * Header component styled with custom color palette and animated mobile menu.
@@ -12,10 +13,15 @@ import { useLocation } from "react-router-dom";
  * @param {Object} props
  * @param {boolean} props.isLoggedIn - Whether the user is currently logged in
  */
-function Header({ isLoggedIn = false }) {
+function Header() {
+  const { user } = useAuth();
+  const storedName = localStorage.getItem("userName");
+  const isLoggedIn = localStorage.getItem("userLoggedIn") === "true";
+  const displayName = user?.name || storedName || "Guest";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const isActive = (path) => location.pathname === path;
+
 
   const toggleMenu = () => setIsMenuOpen(prev => !prev);
 
@@ -46,14 +52,6 @@ function Header({ isLoggedIn = false }) {
           </Link>
 
           <Link
-            to="/settings"
-            className={`transition ${isActive("/settings") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
-              }`}
-          >
-            Settings
-          </Link>
-
-          <Link
             to="/help"
             state={{ reset: true }}
             className={`transition ${isActive("/help") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
@@ -63,23 +61,17 @@ function Header({ isLoggedIn = false }) {
           </Link>
 
           {isLoggedIn ? (
-            <Link
-              to="/profile"
-              className={`transition ${isActive("/profile") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"
-                }`}
-            >
-              Profile
-            </Link>
+            <UserDropdown displayName={displayName} />
           ) : (
             <Link
               to="/auth"
               state={{ mode: 'login' }}
-              className={`transition ${isActive("/auth") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"
-                }`}
+              className={`transition ${isActive("/auth") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"}`}
             >
               Login / Register
             </Link>
           )}
+
 
         </nav>
 
@@ -140,14 +132,6 @@ function Header({ isLoggedIn = false }) {
               </Link>
 
               <Link
-                to="/settings"
-                className={`transition ${isActive("/settings") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
-                  }`}
-              >
-                Settings
-              </Link>
-
-              <Link
                 to="/help"
                 state={{ reset: true }}
                 className={`transition ${isActive("/help") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
@@ -157,33 +141,23 @@ function Header({ isLoggedIn = false }) {
               </Link>
 
               {isLoggedIn ? (
-                <Link
-                  to="/profile"
-                  className={`transition ${isActive("/profile") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"
-                    }`}
-                >
-                  Profile
-                </Link>
+                <UserDropdown displayName={displayName} />
               ) : (
                 <Link
                   to="/auth"
-                  className={`transition ${isActive("/auth") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"
-                    }`}
+                  state={{ mode: 'login' }}
+                  className={`transition ${isActive("/auth") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"}`}
                 >
                   Login / Register
                 </Link>
               )}
-            </div>
 
+            </div>
           </motion.nav>
         )}
       </AnimatePresence>
     </header>
   );
 }
-
-Header.propTypes = {
-  isLoggedIn: PropTypes.bool,
-};
 
 export default Header;

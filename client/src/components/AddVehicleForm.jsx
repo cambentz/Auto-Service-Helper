@@ -20,12 +20,12 @@ const AddVehicleForm = () => {
           "acura", "infiniti", "buick", "chrysler", "cadillac", "volvo", "lincoln", "mitsubishi",
           "mini", "porsche", "audi", "genesis", "landrover", "jaguar"
         ];
-  
+
         const filtered = data.Results.filter((make) =>
           popularMakes.includes(make.Make_Name.toLowerCase().replace(/[^a-z]/gi, ""))
         );
-        
-  
+
+
         // Sort alphabetically
         filtered.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
         setMakes(filtered);
@@ -113,7 +113,7 @@ const AddVehicleForm = () => {
 
       <button
         type="submit"
-        className="w-full bg-[#1A3D61] text-white py-2 rounded hover:bg-[#17405f] transition"
+        className="w-full bg-[#1A3D61] text-white py-2 rounded hover:bg-[#17405f] transition cursor-pointer shadow-md font-semibold"
       >
         Submit Vehicle
       </button>

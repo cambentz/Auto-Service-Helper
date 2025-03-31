@@ -92,16 +92,23 @@ const Home = () => {
               transition={{ delay: 0.6 }}
               className="flex flex-wrap justify-center gap-4"
             >
-              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
-                Browse Guides
-              </button>
+              <Link to="/guides">
+                <button
+                  className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold shadow-md cursor-pointer"
+                >
+                  Browse Guides
+                </button>
+              </Link>
 
               <Link to="/add-vehicle">
-                <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
+                <button
+                  className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold shadow-md cursor-pointer"
+                >
                   Enter Vehicle Info
                 </button>
               </Link>
             </motion.div>
+
           </motion.div>
         </div>
       </section>

@@ -71,7 +71,7 @@ const guideCategories = [
 
 // Vehicle makes for the filter
 const vehicleMakes = [
-  "All Makes", "Toyota", "Honda", "Ford", "Chevrolet", "Nissan", 
+  "All Makes", "Toyota", "Honda", "Ford", "Chevrolet", "Nissan",
   "BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Subaru"
 ];
 
@@ -86,48 +86,48 @@ const Guides = () => {
     let targetY = 0;
     let currentY = 0;
     let animationFrame;
-  
+
     const lerp = (start, end, factor) => start + (end - start) * factor;
-  
+
     const updateParallax = () => {
       targetY = window.scrollY;
       currentY = lerp(currentY, targetY, 0.21);
-  
+
       if (bgRef.current) {
         bgRef.current.style.transform = `translateY(${currentY * 0.3}px) scale(1.1)`;
       }
-  
+
       animationFrame = requestAnimationFrame(updateParallax);
     };
-  
+
     animationFrame = requestAnimationFrame(updateParallax);
-  
+
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
   // Get all guides or filtered guides
   const getFilteredGuides = () => {
     let filteredGuides = [];
-    
+
     // First filter by category if selected
-    const categories = selectedCategory 
-      ? [guideCategories.find(cat => cat.id === selectedCategory)] 
+    const categories = selectedCategory
+      ? [guideCategories.find(cat => cat.id === selectedCategory)]
       : guideCategories;
-    
+
     // Get all guides from selected categories
     categories.forEach(category => {
       if (category) {
         filteredGuides = [...filteredGuides, ...category.guides];
       }
     });
-    
+
     // Then filter by search term
     if (searchTerm) {
-      filteredGuides = filteredGuides.filter(guide => 
+      filteredGuides = filteredGuides.filter(guide =>
         guide.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    
+
     return filteredGuides;
   };
 
@@ -149,7 +149,7 @@ const Guides = () => {
 
   return (
     <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
-      
+
       {/* Hero Section */}
       <section className="relative min-h-[50vh] isolate overflow-hidden">
         <img
@@ -225,27 +225,25 @@ const Guides = () => {
       <section className="w-full py-12 px-6 sm:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-2xl font-bold mb-8 text-[#1A3D61] text-center">Categories</h2>
-          
+
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <button
-              className={`px-4 py-2 rounded-lg transition font-medium ${
-                selectedCategory === null
+              className={`px-4 py-2 rounded-lg transition font-medium ${selectedCategory === null
                   ? "bg-[#1A3D61] text-white"
                   : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+                }`}
               onClick={() => setSelectedCategory(null)}
             >
               All Categories
             </button>
-            
+
             {guideCategories.map((category) => (
               <button
                 key={category.id}
-                className={`px-4 py-2 rounded-lg transition font-medium ${
-                  selectedCategory === category.id
+                className={`px-4 py-2 rounded-lg transition font-medium ${selectedCategory === category.id
                     ? "bg-[#1A3D61] text-white"
                     : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                  }`}
                 onClick={() => setSelectedCategory(category.id)}
               >
                 {category.name}
@@ -302,7 +300,7 @@ const Guides = () => {
         <div className="max-w-6xl mx-auto">
           <FadeInOnView>
             <h2 className="text-2xl font-bold mb-8 text-[#1A3D61] text-center">Popular Guides</h2>
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <span className="inline-block mb-3 text-[#1A3D61]">
@@ -319,7 +317,7 @@ const Guides = () => {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <span className="inline-block mb-3 text-[#1A3D61]">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -335,7 +333,7 @@ const Guides = () => {
                   </svg>
                 </button>
               </div>
-              
+
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <span className="inline-block mb-3 text-[#1A3D61]">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
