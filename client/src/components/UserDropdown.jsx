@@ -10,6 +10,13 @@ import Button from "./Button";
 import { useAuth } from "../utils/AuthContext";
 import { User, ChevronDown } from "lucide-react";
 
+/**
+ * UserDropdown displays a personalized greeting and dropdown menu for logged-in users.
+ * Backend devs:
+ * - `displayName` comes from AuthContext and localStorage — ensure your auth system supports this.
+ * - `logout()` should be connected to your logout endpoint and also clear relevant user data client-side.
+ */
+
 const UserDropdown = ({ displayName = "User" }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();

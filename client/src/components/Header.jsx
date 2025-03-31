@@ -8,6 +8,7 @@ import { useAuth } from "../utils/AuthContext";
 
 /**
  * Header component styled with custom color palette and animated mobile menu.
+ * Backend devs: Currently uses localStorage to simulate auth state – replace with real auth context/state.
  *
  * @component
  * @param {Object} props
@@ -15,6 +16,8 @@ import { useAuth } from "../utils/AuthContext";
  */
 function Header() {
   const { user } = useAuth();
+
+  // Backend devs: Replace this with real user name from auth state or user context
   const storedName = localStorage.getItem("userName");
   const isLoggedIn = localStorage.getItem("userLoggedIn") === "true";
   const displayName = user?.name || storedName || "Guest";
