@@ -1,14 +1,41 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const AddVehicleForm = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const editing = !!location.state;
+  const { vehicle: existingVehicle, index } = location.state || {};
   const [makes, setMakes] = useState([]);
   const [models, setModels] = useState([]);
   const [selectedMake, setSelectedMake] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedYear, setSelectedYear] = useState("");
   const [nickname, setNickname] = useState("");
+  const [mileage, setMileage] = useState("");
+
+  useEffect(() => {
+    if (editing && existingVehicle) {
+      setSelectedMake(existingVehicle.make || "");
+      setSelectedModel(existingVehicle.model || "");
+      setSelectedYear(existingVehicle.year || "");
+      setNickname(existingVehicle.nickname || "");
+      setMileage(existingVehicle.mileage || "");
+    }
+  }, [editing, existingVehicle]);
+
+
 
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
+  const [unitPreference, setUnitPreference] = useState("miles"); // default
+  useEffect(() => {
+    const storedUnits = localStorage.getItem("unitPreference");
+    if (storedUnits) {
+      setUnitPreference(storedUnits);
+    }
+  }, []);
+
+
 
   useEffect(() => {
     fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json")
@@ -48,10 +75,24 @@ const AddVehicleForm = () => {
       model: selectedModel,
       year: selectedYear,
       nickname: nickname || null,
+      mileage: mileage || null,
+      imageURL: null,
     };
 
-    console.log("🚗 Submitting vehicle:", vehicleData);
-    // This is where you'd send vehicleData to the backend when ready
+    const existing = JSON.parse(localStorage.getItem("garageVehicles")) || [];
+    let updated;
+
+    if (editing && typeof index === "number") {
+      // Update vehicle at specific index
+      updated = [...existing];
+      updated[index] = vehicleData;
+    } else {
+      // Add new vehicle
+      updated = [...existing, vehicleData];
+    }
+
+    localStorage.setItem("garageVehicles", JSON.stringify(updated));
+    navigate("/garage");
   };
 
   return (
@@ -65,8 +106,10 @@ const AddVehicleForm = () => {
           setSelectedMake(e.target.value);
           setSelectedModel("");
         }}
-        className="w-full mb-4 p-2 border border-gray-300 rounded"
+        className="w-full mb-4 p-2 border border-gray-300 rounded bg-gray-100"
+        disabled={editing}
       >
+
         <option value="">Select Make</option>
         {makes.map((make) => (
           <option key={make.Make_ID} value={make.Make_Name}>
@@ -79,9 +122,10 @@ const AddVehicleForm = () => {
       <select
         value={selectedModel}
         onChange={(e) => setSelectedModel(e.target.value)}
-        disabled={!models.length}
-        className="w-full mb-4 p-2 border border-gray-300 rounded"
+        disabled={editing || !models.length}
+        className="w-full mb-4 p-2 border border-gray-300 rounded bg-gray-100"
       >
+
         <option value="">{selectedMake ? "Select Model" : "Select Make First"}</option>
         {models.map((model) => (
           <option key={model.Model_ID} value={model.Model_Name}>
@@ -94,8 +138,10 @@ const AddVehicleForm = () => {
       <select
         value={selectedYear}
         onChange={(e) => setSelectedYear(e.target.value)}
-        className="w-full mb-4 p-2 border border-gray-300 rounded"
+        className="w-full mb-4 p-2 border border-gray-300 rounded bg-gray-100"
+        disabled={editing}
       >
+
         <option value="">Select Year</option>
         {years.map((year) => (
           <option key={year} value={year}>{year}</option>
@@ -108,15 +154,34 @@ const AddVehicleForm = () => {
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
         placeholder="e.g. Dad's Car"
+        className="w-full mb-6 p-2 border border-gray-300 rounded" />
+
+      <label className="block mb-2 text-sm font-medium text-gray-700">
+        Current Mileage ({unitPreference === "kilometers" ? "km" : "mi"})
+      </label>
+      <input
+        type="number"
+        value={mileage}
+        onChange={(e) => {
+          const value = e.target.value.replace(/\D/g, "").slice(0, 6); // digits only, max 6 chars
+          setMileage(value);
+        }}
+        placeholder="e.g. 45200"
         className="w-full mb-6 p-2 border border-gray-300 rounded"
       />
 
+
       <button
         type="submit"
-        className="w-full bg-[#1A3D61] text-white py-2 rounded hover:bg-[#17405f] transition cursor-pointer shadow-md font-semibold"
+        disabled={!selectedMake || !selectedModel || !selectedYear || !mileage}
+        className={`w-full bg-[#1A3D61] text-white py-2 rounded transition cursor-pointer shadow-md font-semibold ${!selectedMake || !selectedModel || !selectedYear || !mileage
+          ? "opacity-50 cursor-not-allowed"
+          : "hover:bg-[#17405f]"
+          }`}
       >
         Submit Vehicle
       </button>
+
     </form>
   );
 };

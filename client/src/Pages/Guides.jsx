@@ -69,17 +69,34 @@ const guideCategories = [
   }
 ];
 
-// Vehicle makes for the filter
-const vehicleMakes = [
-  "All Makes", "Toyota", "Honda", "Ford", "Chevrolet", "Nissan",
-  "BMW", "Mercedes-Benz", "Audi", "Volkswagen", "Subaru"
-];
-
 const Guides = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("All Makes");
+  const [makes, setMakes] = useState([]);
   const bgRef = useRef(null);
+
+  useEffect(() => {
+    fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json")
+      .then((res) => res.json())
+      .then((data) => {
+        const popularMakes = [
+          "toyota", "honda", "ford", "chevrolet", "nissan", "bmw", "mercedesbenz", "hyundai",
+          "kia", "volkswagen", "subaru", "mazda", "lexus", "jeep", "dodge", "ram", "gmc", "tesla",
+          "acura", "infiniti", "buick", "chrysler", "cadillac", "volvo", "lincoln", "mitsubishi",
+          "mini", "porsche", "audi", "genesis", "landrover", "jaguar"
+        ];
+
+        const filtered = data.Results.filter((make) =>
+          popularMakes.includes(make.Make_Name.toLowerCase().replace(/[^a-z]/gi, ""))
+        );
+
+        filtered.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
+        setMakes([{ Make_Name: "All Makes" }, ...filtered]);
+      })
+      .catch((err) => console.error("Error fetching makes:", err));
+  }, []);
+
 
   // Similar parallax effect as in Home.jsx
   useEffect(() => {
@@ -211,9 +228,12 @@ const Guides = () => {
                   value={selectedMake}
                   onChange={(e) => setSelectedMake(e.target.value)}
                 >
-                  {vehicleMakes.map((make) => (
-                    <option key={make} value={make}>{make}</option>
+                  {makes.map((makeObj) => (
+                    <option key={makeObj.Make_Name} value={makeObj.Make_Name}>
+                      {makeObj.Make_Name}
+                    </option>
                   ))}
+
                 </select>
               </div>
             </motion.div>
@@ -228,9 +248,9 @@ const Guides = () => {
 
           <div className="flex flex-wrap justify-center gap-4 mb-12">
             <button
-              className={`px-4 py-2 rounded-lg transition font-medium ${selectedCategory === null
-                  ? "bg-[#1A3D61] text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              className={`px-4 py-2 rounded-lg transition font-medium cursor-pointer ${selectedCategory === null
+                ? "bg-[#1A3D61] text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               onClick={() => setSelectedCategory(null)}
             >
@@ -240,9 +260,9 @@ const Guides = () => {
             {guideCategories.map((category) => (
               <button
                 key={category.id}
-                className={`px-4 py-2 rounded-lg transition font-medium ${selectedCategory === category.id
-                    ? "bg-[#1A3D61] text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                className={`px-4 py-2 rounded-lg transition font-medium cursor-pointer ${selectedCategory === category.id
+                  ? "bg-[#1A3D61] text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 onClick={() => setSelectedCategory(category.id)}
               >
@@ -275,9 +295,10 @@ const Guides = () => {
                           {guide.time}
                         </span>
                       </div>
-                      <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2">
+                      <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2 cursor-pointer">
                         View Guide
                       </button>
+
                     </div>
                   </div>
                 </FadeInOnView>

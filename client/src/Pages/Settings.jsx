@@ -25,6 +25,17 @@ const Settings = () => {
 
   const [showTicketModal, setShowTicketModal] = useState(false);
 
+  const [unitPreference, setUnitPreference] = useState(
+    localStorage.getItem("unitPreference") || "miles"
+  );
+
+  const handleUnitChange = (e) => {
+    const newUnit = e.target.value;
+    setUnitPreference(newUnit);
+    localStorage.setItem("unitPreference", newUnit);
+  };
+
+
   const handleSaveName = () => {
     login(firstName);
     localStorage.setItem("userName", firstName); // optional, but safe
@@ -120,13 +131,14 @@ const Settings = () => {
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-1">Preferred Units</label>
               <select
+                value={unitPreference}
+                onChange={handleUnitChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-800"
-              // value={unit}
-              // onChange={(e) => setUnit(e.target.value)}
               >
                 <option value="miles">Miles</option>
                 <option value="kilometers">Kilometers</option>
               </select>
+
               <p className="text-xs text-gray-500 mt-1">Used for odometer and distance-based guides.</p>
             </div>
 
