@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "motion/react";
 import guidesBackground from "../assets/heroBackground.png"; // Reusing the same background image
-//mport SearchIcon from "../assets/search-icon.svg"; // You'll need to add this asset
+import { Link } from "react-router-dom";
 
 // Reusing the FadeInOnView component from Home.jsx
 const FadeInOnView = ({ children, delay = 0 }) => {
@@ -275,9 +275,11 @@ const Guides = () => {
                           {guide.time}
                         </span>
                       </div>
-                      <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2">
-                        View Guide
-                      </button>
+                      <Link to={`/guides/${guide.id}`}>
+                        <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2">
+                          View Guide
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </FadeInOnView>
