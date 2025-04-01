@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import guideRoutes from "./routes/guideRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
+import garageRoutes from "./routes/garageRoutes.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/garage", garageRoutes);
 
 // Health check + default root route
 app.get("/health", (req, res) => {
