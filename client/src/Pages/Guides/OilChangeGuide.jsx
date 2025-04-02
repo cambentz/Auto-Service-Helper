@@ -1,20 +1,22 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Link } from "react-router-dom";
-import guideBackground from "../../assets/heroBackground.png"; // Adjusted path for subfolder
+import guideBackground from "../../assets/heroBackground.png";
 import gestureService from "../../GestureNav/GestureService.js";
-window.gestureService = gestureService;
-import GestureControl from "../../GestureNav/GestureControl"; // Import the reusable component
+import GestureControl from "../../GestureNav/GestureControl";
 
 const OilChangeGuide = () => {
-    const bgRef = useRef(null);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [isTransitioning, setIsTransitioning] = useState(false);
-    const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
-    const [gesturesEnabled, setGesturesEnabled] = useState(false); // Add this state declaration
-    const [navigationCooldown, setNavigationCooldown] = useState(false);
+  // Refs
+  const bgRef = useRef(null);
+  
+  // State
+  const [currentStep, setCurrentStep] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
+  const [gesturesEnabled, setGesturesEnabled] = useState(false);
+  const [navigationCooldown, setNavigationCooldown] = useState(false);
 
-  // Steps for the guide
+  // Oil change guide steps content - this would normally be in a separate file or fetched from an API
   const steps = [
     {
       title: "Introduction",
@@ -249,7 +251,7 @@ const OilChangeGuide = () => {
       )
     }
   ];
-  // Parallax effect for background
+   // Background parallax effect
   useEffect(() => {
     let targetY = 0;
     let currentY = 0;
@@ -273,67 +275,68 @@ const OilChangeGuide = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  // Enhanced navigation functions with transitions
-  const goToNextStep = () => {
-    // Check both transition state and navigation cooldown
+  // Navigation functions with useCallback for better performance
+  const goToNextStep = useCallback(() => {
     if (currentStep < steps.length - 1 && !isTransitioning && !navigationCooldown) {
       console.log("Moving to next step");
       
-      // Activate cooldown
+      // Set cooldown and transition states
       setNavigationCooldown(true);
-      
-      // Start transition
       setIsTransitioning(true);
       setDirection(1);
       
+      // Delayed state updates
       setTimeout(() => {
-        // Use functional update to ensure you're working with the latest state
         setCurrentStep(prevStep => prevStep + 1);
         setIsTransitioning(false);
         
-        // Remove the cooldown after a delay
+        // Remove navigation cooldown after delay
         setTimeout(() => {
           setNavigationCooldown(false);
-        }, 3000); // 3.0 second cooldown
+        }, 1000); // Reduced cooldown to 1 second for better UX
       }, 300);
     }
-  };
+  }, [currentStep, isTransitioning, navigationCooldown, steps.length]);
   
-  const goToPrevStep = () => {
-    // Check both transition state and navigation cooldown
+  const goToPrevStep = useCallback(() => {
     if (currentStep > 0 && !isTransitioning && !navigationCooldown) {
       console.log("Moving to previous step");
       
-      // Activate cooldown
+      // Set cooldown and transition states
       setNavigationCooldown(true);
-      
-      // Start transition
       setIsTransitioning(true);
       setDirection(-1);
       
+      // Delayed state updates
       setTimeout(() => {
-        // Use functional update to ensure you're working with the latest state
         setCurrentStep(prevStep => prevStep - 1);
         setIsTransitioning(false);
         
-        // Remove the cooldown after a delay
+        // Remove navigation cooldown after delay
         setTimeout(() => {
           setNavigationCooldown(false);
-        }, 3000); // 3.0 second cooldown
+        }, 1000); // Reduced cooldown to 1 second for better UX
       }, 300);
     }
-  };
+  }, [currentStep, isTransitioning, navigationCooldown]);
+  
   // Jump to specific step
-  const jumpToStep = (stepIndex) => {
-    if (stepIndex !== currentStep && !isTransitioning) {
+  const jumpToStep = useCallback((stepIndex) => {
+    if (stepIndex !== currentStep && !isTransitioning && !navigationCooldown) {
+      setNavigationCooldown(true);
       setIsTransitioning(true);
       setDirection(stepIndex > currentStep ? 1 : -1);
+      
       setTimeout(() => {
         setCurrentStep(stepIndex);
         setIsTransitioning(false);
+        
+        setTimeout(() => {
+          setNavigationCooldown(false);
+        }, 1000);
       }, 300);
     }
-  };
+  }, [currentStep, isTransitioning, navigationCooldown]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -349,24 +352,30 @@ const OilChangeGuide = () => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentStep, isTransitioning, navigationCooldown]);
+  }, [goToNextStep, goToPrevStep]);
 
-  // Handle gesture detection
-  const handleGestureDetected = (gesture, confidence) => {
-    console.log(`Gesture detected: ${gesture}, Current step: ${currentStep}, Transitioning: ${isTransitioning}, Cooldown: ${navigationCooldown}`);
+  // Handle gesture detection with improved mapping - key fix for thumbs down
+  const handleGestureDetected = useCallback((gesture, confidence) => {
+    console.log(`Gesture detected: ${gesture}, Confidence: ${confidence}`);
     
-    if (gesture === "Thumb_Up") {
-      console.log("Thumb up detected, going to next step");
-      goToNextStep();
-    } else if (gesture === "Thumb_Down") {
-      console.log("Thumb down detected, going to previous step");
-      goToPrevStep();
+    // Explicit mapping of gestures to navigation actions
+    switch(gesture) {
+      case "Thumb_Up":
+        goToNextStep();
+        break;
+      case "Thumb_Down":
+        goToPrevStep(); 
+        break;
+      default:
+        // Ignore other gestures
+        break;
     }
-  };
+  }, [goToNextStep, goToPrevStep]);
+
   // Toggle gesture recognition
-  const toggleGestures = () => {
-    setGesturesEnabled(!gesturesEnabled);
-  };
+  const toggleGestures = useCallback(() => {
+    setGesturesEnabled(prev => !prev);
+  }, []);
 
   return (
     <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
@@ -472,7 +481,7 @@ const OilChangeGuide = () => {
             <button 
               onClick={goToPrevStep}
               className="flex absolute left-[-80px] top-1/2 transform -translate-y-1/2 rounded-full h-12 w-12 bg-white shadow-md items-center justify-center text-[#1A3D61] hover:bg-gray-100 transition"
-              disabled={isTransitioning}
+              disabled={isTransitioning || navigationCooldown}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -485,7 +494,7 @@ const OilChangeGuide = () => {
             <button 
               onClick={goToNextStep}
               className="flex absolute right-[-80px] top-1/2 transform -translate-y-1/2 rounded-full h-12 w-12 bg-white shadow-md items-center justify-center text-[#1A3D61] hover:bg-gray-100 transition"
-              disabled={isTransitioning}
+              disabled={isTransitioning || navigationCooldown}
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -493,7 +502,7 @@ const OilChangeGuide = () => {
             </button>
           )}
           
-          {/* Inline gesture control - positioned in the top right corner of the content area */}
+          {/* Gesture control component */}
           {gesturesEnabled && (
             <div className="fixed left-4 top-1/3 z-30">
               <GestureControl 
@@ -539,7 +548,7 @@ const OilChangeGuide = () => {
               <button
                 key={index}
                 onClick={() => jumpToStep(index)}
-                disabled={isTransitioning}
+                disabled={isTransitioning || navigationCooldown}
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   currentStep === index 
                     ? "bg-[#1A3D61] w-6" 
@@ -549,6 +558,7 @@ const OilChangeGuide = () => {
               />
             ))}
           </div>
+          
         </div>
       </section>
     </div>

@@ -7,30 +7,42 @@ import {
 
 class GestureService {
   constructor() {
+    // Recognition setup
     this.gestureRecognizer = null;
-    this.webcamRunning = false;
+    this.runningMode = "IMAGE";
+    
+    // Elements
     this.video = null;
     this.canvas = null;
     this.canvasCtx = null;
+    
+    // State
+    this.webcamRunning = false;
     this.lastVideoTime = -1;
-    this.lastGestureTimestamp = 0;
-    this.gestureCooldown = 3000; // 3 second cooldown
-    this.confidenceThreshold = 0.7; // 70% confidence threshold
-    this.onGestureDetected = null; // Callback function
-    this.onGestureUpdate = null; // Callback for UI updates only
     this.animationFrame = null;
-    this.runningMode = "IMAGE";
-    this.lastGesture = null;
-    this.isProcessing = false; // Flag to prevent concurrent processing
+    this.isInitialized = false;
+    
+    // Gesture detection settings
+    this.lastGestureTimestamp = 0;
+    this.gestureCooldown = 3000; // 3 seconds cooldown
+    this.confidenceThreshold = 0.7; // 70% confidence threshold
+    
+    // Callbacks
+    this.onGestureDetected = null; // Callback for navigation
+    this.onGestureUpdate = null;   // Callback for UI updates
     
     // Bind methods to preserve 'this' context
     this.predictWebcam = this.predictWebcam.bind(this);
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
   }
 
+  /**
+   * Initialize the gesture service with required elements and callbacks
+   */
   async initialize(videoElement, canvasElement, onGestureCallback, onGestureUpdate) {
     if (!videoElement || !canvasElement) {
-      throw new Error("Video and canvas elements are required");
+      console.error("Video and canvas elements are required");
+      return false;
     }
 
     // Set up references
@@ -47,8 +59,6 @@ class GestureService {
         "/node_modules/@mediapipe/tasks-vision/wasm"
       );
       
-      console.log("Creating GestureRecognizer with model path: /models/gesture_recognizer.task");
-      
       this.gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
         baseOptions: {
           modelAssetPath: "/models/gesture_recognizer.task",
@@ -57,6 +67,7 @@ class GestureService {
         runningMode: this.runningMode
       });
 
+      this.isInitialized = true;
       console.log("GestureRecognizer initialized successfully");
       return true;
     } catch (error) {
@@ -65,27 +76,50 @@ class GestureService {
     }
   }
 
+  /**
+   * Default callback if none provided
+   */
   defaultGestureCallback(gesture, confidence) {
     console.log(`Gesture detected: ${gesture} with confidence ${confidence}`);
   }
 
+  /**
+   * Start the webcam and gesture detection
+   */
   async startWebcam() {
-    if (!this.gestureRecognizer) {
+    if (!this.isInitialized) {
       console.warn("GestureRecognizer not initialized");
       return false;
     }
 
     try {
-      console.log("Requesting camera access...");
+      // Request camera access
       const constraints = { video: true };
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
-      console.log("Camera access granted, setting up video stream");
+      // Set up video stream
       this.video.srcObject = stream;
       this.webcamRunning = true;
 
-      // Start detection when video is loaded
-      this.video.addEventListener("loadeddata", this.startDetection.bind(this));
+      // Remove any existing loadeddata listeners to prevent duplicates
+      this.video.removeEventListener("loadeddata", this.startDetection);
+      
+      // Add new loadeddata listener
+      this.video.addEventListener("loadeddata", () => {
+        // Set canvas dimensions to match video
+        this.canvas.width = this.video.videoWidth;
+        this.canvas.height = this.video.videoHeight;
+        
+        // Reset state
+        this.lastVideoTime = -1;
+        this.lastGestureTimestamp = 0;
+        
+        // Add visibility change listener
+        document.addEventListener('visibilitychange', this.handleVisibilityChange);
+        
+        // Start prediction loop
+        this.predictWebcam();
+      });
       
       return true;
     } catch (error) {
@@ -94,19 +128,22 @@ class GestureService {
     }
   }
 
+  /**
+   * Stop the webcam and gesture detection
+   */
   stopWebcam() {
     this.webcamRunning = false;
     
-    // Remove visibility change listener
+    // Remove event listeners
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
     
-    // Cancel the animation frame
+    // Cancel animation frame
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
     }
     
-    // Stop all tracks
+    // Stop all video tracks
     if (this.video && this.video.srcObject) {
       const tracks = this.video.srcObject.getTracks();
       tracks.forEach(track => track.stop());
@@ -114,34 +151,18 @@ class GestureService {
     }
   }
 
-  startDetection() {
-    console.log("Video loaded, starting detection");
-    // Set canvas dimensions to match video
-    this.canvas.width = this.video.videoWidth;
-    this.canvas.height = this.video.videoHeight;
-    
-    // Reset last video time
-    this.lastVideoTime = -1;
-    
-    // Add visibility change listener to handle tab switching
-    document.addEventListener('visibilitychange', this.handleVisibilityChange);
-    
-    // Start prediction loop
-    this.predictWebcam();
-  }
-
-  // Handle visibility changes
+  /**
+   * Handle visibility changes to pause/resume detection when tab is switched
+   */
   handleVisibilityChange() {
     if (document.hidden) {
-      // Page is hidden, pause processing but keep webcam running
-      console.log("Page hidden, pausing gesture recognition");
+      // Pause when tab is hidden
       if (this.animationFrame) {
         cancelAnimationFrame(this.animationFrame);
         this.animationFrame = null;
       }
     } else {
-      // Page is visible again, restart processing
-      console.log("Page visible, resuming gesture recognition");
+      // Resume when tab is visible again
       if (this.webcamRunning && !this.animationFrame) {
         this.lastVideoTime = -1;
         this.predictWebcam();
@@ -149,44 +170,41 @@ class GestureService {
     }
   }
 
-  // Restart the animation loop after navigation
+  /**
+   * Restart the animation loop after gesture navigation
+   */
   restartLoop() {
-    console.log("Attempting to restart gesture detection loop");
-    
-    // Cancel any existing animation frame first to avoid duplicates
+    // Cancel any existing animation frame first
     if (this.animationFrame) {
       cancelAnimationFrame(this.animationFrame);
       this.animationFrame = null;
     }
     
-    // Reset state for a clean restart
-    this.lastVideoTime = -1;
-    this.isProcessing = false;
-    this.lastGesture = null;
-    
-    // Reset the gesture timestamp to allow immediate next gesture
-    this.lastGestureTimestamp = Date.now() - this.gestureCooldown;
-    
     // Only restart if webcam is still running
     if (this.webcamRunning) {
-      console.log("Webcam still running, restarting detection loop");
-      
-      // Update canvas dimensions if needed
-      if (this.video && this.canvas && this.video.videoWidth > 0 && this.video.videoHeight > 0) {
-        this.canvas.width = this.video.videoWidth;
-        this.canvas.height = this.video.videoHeight;
-      }
+      // Reset state
+      this.lastVideoTime = -1;
       
       // Start the prediction loop again
       this.predictWebcam();
       return true;
-    } else {
-      console.log("Webcam not running, cannot restart detection loop");
-      return false;
     }
+    
+    return false;
   }
+
+  /**
+   * Reset cooldown to allow immediate gesture detection
+   */
+  resetCooldown() {
+    this.lastGestureTimestamp = 0;
+  }
+
+  /**
+   * Main prediction loop for webcam frames
+   */
   predictWebcam() {
-    // Exit if webcam is no longer running
+    // Exit if webcam is no longer running or elements are missing
     if (!this.webcamRunning || !this.video || !this.canvas) {
       console.log("Webcam stopped or elements missing, exiting prediction loop");
       return;
@@ -194,44 +212,41 @@ class GestureService {
   
     // Check if video dimensions are valid
     if (this.video.videoWidth <= 0 || this.video.videoHeight <= 0) {
-      console.log("Video dimensions are invalid, scheduling next frame and waiting");
-      // Schedule next frame even when dimensions are invalid
+      // Schedule next frame and wait for valid dimensions
       this.animationFrame = requestAnimationFrame(this.predictWebcam);
       return;
     }
     
-    // If we're still in IMAGE mode, switch to VIDEO
+    // Switch from IMAGE to VIDEO mode if needed
     if (this.runningMode === "IMAGE") {
-      console.log("Switching from IMAGE to VIDEO mode");
       this.runningMode = "VIDEO";
       this.gestureRecognizer.setOptions({ runningMode: "VIDEO" });
     }
     
     const nowInMs = Date.now();
     
-    // Skip if video is not ready or not playing
+    // Skip if video is not ready
     if (this.video.readyState !== 4 || this.video.paused || this.video.ended) {
-      console.log("Video is not ready, paused, or ended");
       this.animationFrame = requestAnimationFrame(this.predictWebcam);
       return;
     }
     
-    // Only process if video is playing and time has changed
+    // Only process if video time has changed
     if (this.video.currentTime !== this.lastVideoTime) {
       this.lastVideoTime = this.video.currentTime;
       
-      // Set canvas dimensions to match video (in case they changed)
+      // Update canvas dimensions if needed
       if (this.canvas.width !== this.video.videoWidth || 
           this.canvas.height !== this.video.videoHeight) {
         this.canvas.width = this.video.videoWidth;
         this.canvas.height = this.video.videoHeight;
       }
       
-      // Process the current frame
       try {
+        // Process the current frame
         const results = this.gestureRecognizer.recognizeForVideo(this.video, nowInMs);
         
-        // Clear and prepare canvas
+        // Clear canvas
         this.canvasCtx.save();
         this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
@@ -254,52 +269,49 @@ class GestureService {
         }
         this.canvasCtx.restore();
         
-        // Process gestures
+        // Process gestures if any were detected
         if (results.gestures.length > 0) {
           const gesture = results.gestures[0][0].categoryName;
           const confidence = results.gestures[0][0].score;
           const handedness = results.handednesses[0][0].displayName;
           
-          // Update UI for all detected gestures
+          // Always update UI
           if (this.onGestureUpdate) {
             this.onGestureUpdate(gesture, confidence, handedness);
           }
           
-          // For gesture actions, only trigger after cooldown and with sufficient confidence
-          const currentTime = Date.now();
-          const cooldownElapsed = currentTime - this.lastGestureTimestamp >= this.gestureCooldown;
+          // Check cooldown and confidence for action triggers
+          const timeSinceLastGesture = nowInMs - this.lastGestureTimestamp;
+          const cooldownElapsed = timeSinceLastGesture >= this.gestureCooldown;
           const confidenceOk = confidence >= this.confidenceThreshold;
           
-          // Log cooldown status for debugging
-          console.log(`Gesture: ${gesture}, Confidence: ${confidence.toFixed(2)}, Cooldown: ${cooldownElapsed ? "Ready" : "Waiting"}, Last: ${this.lastGesture}`);
+          // Debug logging
+          console.log(`Gesture: ${gesture}, Confidence: ${confidence.toFixed(2)}, Cooldown: ${cooldownElapsed ? "Ready" : `${timeSinceLastGesture}ms/${this.gestureCooldown}ms`}`);
           
-          // Only trigger actions for gestures after cooldown with sufficient confidence
-          // Note: We've removed the lastGesture !== gesture condition to allow repeated gestures
-          if (confidenceOk && cooldownElapsed) {
-            this.lastGestureTimestamp = currentTime;
-            // Store the gesture that triggered an action
-            this.lastGesture = gesture;
+          // Trigger action if cooldown elapsed and confidence is high enough
+          if (cooldownElapsed && confidenceOk) {
+            // Update timestamp FIRST to prevent double-triggering
+            this.lastGestureTimestamp = nowInMs;
             
-            // Only notify consumer of significant gestures in a separate async call
+            // Notify consumer of the gesture in a separate async call
             if (this.onGestureDetected) {
-              // Use Promise to avoid blocking
-              Promise.resolve().then(() => {
+              console.log(`Triggering action for gesture: ${gesture}`);
+              
+              // Use setTimeout to avoid blocking the animation loop
+              setTimeout(() => {
                 if (this.onGestureDetected) {
-                  console.log(`Triggering action for gesture: ${gesture}`);
                   this.onGestureDetected(gesture, confidence, handedness);
                 }
-              });
+              }, 0);
             }
           }
-        } else {
-          // No gesture detected in this frame
         }
       } catch (error) {
         console.error("Error in gesture recognition:", error);
       }
     }
 
-    // Always schedule the next frame at the end
+    // Schedule next frame
     this.animationFrame = requestAnimationFrame(this.predictWebcam);
   }
 }
