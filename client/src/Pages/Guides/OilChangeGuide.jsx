@@ -299,7 +299,7 @@ const OilChangeGuide = () => {
   }, [currentStep, isTransitioning, navigationCooldown, steps.length]);
   
   const goToPrevStep = useCallback(() => {
-    if (currentStep > 0 && !isTransitioning && !navigationCooldown) {
+    if (!isTransitioning && !navigationCooldown) {
       console.log("Moving to previous step");
       
       // Set cooldown and transition states
@@ -364,6 +364,11 @@ const OilChangeGuide = () => {
         goToNextStep();
         break;
       case "Thumb_Down":
+        console.log("Trying to go to previous step");
+        console.log("Current step:", currentStep);
+        console.log("Is transitioning:", isTransitioning);
+        console.log("Navigation cooldown:", navigationCooldown);
+        
         goToPrevStep(); 
         break;
       default:
