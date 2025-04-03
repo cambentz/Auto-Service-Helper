@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes.js";
 import guideRoutes from "./routes/guideRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import garageRoutes from "./routes/garageRoutes.js";
+import vehicleRoutes from "./routes/vehicleRoutes.js";
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/guides", guideRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/garage", garageRoutes);
+app.use("/api/vehicles", vehicleRoutes);
 
 // Health check + default root route
 app.get("/health", (req, res) => {
