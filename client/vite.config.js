@@ -8,4 +8,7 @@ export default defineConfig({
     react(),
     tailwindcss()
   ],
+  define: {
+      API_ENDPOINT: JSON.stringify("https://gesture-garage-api.onrender.com/api")
+  }
 })

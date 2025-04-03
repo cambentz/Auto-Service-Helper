@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, useInView } from "motion/react";
 import guidesBackground from "../assets/heroBackground.png"; // Reusing the same background image
 import { Link } from "react-router-dom";
+import axios from 'axios';
 
 // Reusing the FadeInOnView component from Home.jsx
 const FadeInOnView = ({ children, delay = 0 }) => {
@@ -20,63 +21,24 @@ const FadeInOnView = ({ children, delay = 0 }) => {
   );
 };
 
-// Mock data for guides - replace with actual API call in production
-const guideCategories = [
-  {
-    id: 1,
-    name: "Engine",
-    guides: [
-      { id: 101, title: "Oil Change", difficulty: "Easy", time: "30 min" },
-      { id: 102, title: "Spark Plug Replacement", difficulty: "Medium", time: "1-2 hours" },
-      { id: 103, title: "Air Filter Replacement", difficulty: "Easy", time: "15 min" },
-    ]
-  },
-  {
-    id: 2,
-    name: "Brakes",
-    guides: [
-      { id: 201, title: "Brake Pad Replacement", difficulty: "Medium", time: "1-2 hours" },
-      { id: 202, title: "Brake Fluid Flush", difficulty: "Medium", time: "1 hour" },
-      { id: 203, title: "Brake Caliper Replacement", difficulty: "Hard", time: "2-3 hours" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Electrical",
-    guides: [
-      { id: 301, title: "Battery Replacement", difficulty: "Easy", time: "30 min" },
-      { id: 302, title: "Alternator Replacement", difficulty: "Medium", time: "2-3 hours" },
-      { id: 303, title: "Headlight Bulb Replacement", difficulty: "Easy", time: "20 min" }
-    ]
-  },
-  {
-    id: 4,
-    name: "Suspension",
-    guides: [
-      { id: 401, title: "Shock Absorber Replacement", difficulty: "Hard", time: "3-4 hours" },
-      { id: 402, title: "Wheel Bearing Replacement", difficulty: "Hard", time: "2-3 hours" },
-      { id: 403, title: "Tie Rod End Replacement", difficulty: "Medium", time: "1-2 hours" }
-    ]
-  },
-  {
-    id: 5,
-    name: "Maintenance",
-    guides: [
-      { id: 501, title: "Tire Rotation", difficulty: "Easy", time: "45 min" },
-      { id: 502, title: "Coolant Flush", difficulty: "Medium", time: "1 hour" },
-      { id: 503, title: "Transmission Fluid Change", difficulty: "Medium", time: "1-2 hours" }
-    ]
-  }
-];
-
 const Guides = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMake, setSelectedMake] = useState("All Makes");
   const [makes, setMakes] = useState([]);
+  const [guides, setGuides] = useState([]);
   const bgRef = useRef(null);
 
   useEffect(() => {
+    axios.get(API_ENDPOINT + "/guides")
+    .then(resp => {
+       setGuides(resp.data);
+    })
+    .catch(err => {
+      console.error(err);
+    })
+
+    //TODO: make and use a GetAllMakes in local environment
     fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json")
       .then((res) => res.json())
       .then((data) => {
@@ -124,27 +86,15 @@ const Guides = () => {
 
   // Get all guides or filtered guides
   const getFilteredGuides = () => {
-    let filteredGuides = [];
-
-    // First filter by category if selected
-    const categories = selectedCategory
-      ? [guideCategories.find(cat => cat.id === selectedCategory)]
-      : guideCategories;
-
-    // Get all guides from selected categories
-    categories.forEach(category => {
-      if (category) {
-        filteredGuides = [...filteredGuides, ...category.guides];
-      }
-    });
+    let filteredGuides = guides;
 
     // Then filter by search term
     if (searchTerm) {
-      filteredGuides = filteredGuides.filter(guide =>
-        guide.title.toLowerCase().includes(searchTerm.toLowerCase())
+      filteredGuides = guides.filter(guide =>
+        guide.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-
+    console.log(filteredGuides)
     return filteredGuides;
   };
 
@@ -244,38 +194,11 @@ const Guides = () => {
       {/* Categories Section */}
       <section className="w-full py-12 px-6 sm:px-12 bg-white">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold mb-8 text-[#1A3D61] text-center">Categories</h2>
-
-          <div className="flex flex-wrap justify-center gap-4 mb-12">
-            <button
-              className={`px-4 py-2 rounded-lg transition font-medium cursor-pointer ${selectedCategory === null
-                ? "bg-[#1A3D61] text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-              onClick={() => setSelectedCategory(null)}
-            >
-              All Categories
-            </button>
-
-            {guideCategories.map((category) => (
-              <button
-                key={category.id}
-                className={`px-4 py-2 rounded-lg transition font-medium cursor-pointer ${selectedCategory === category.id
-                  ? "bg-[#1A3D61] text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-
           {/* Guides Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredGuides.length > 0 ? (
               filteredGuides.map((guide, index) => (
-                <FadeInOnView key={guide.id} delay={0.1 * (index % 3)}>
+                <FadeInOnView key={guide.guide_id} delay={0.1 * (index % 3)}>
                   <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition">
                     <div className="h-40 bg-gray-200 flex items-center justify-center">
                       <div className="text-[#1A3D61] text-5xl opacity-50">
@@ -286,16 +209,22 @@ const Guides = () => {
                       </div>
                     </div>
                     <div className="p-5">
-                      <h3 className="font-bold text-lg text-[#1A3D61] mb-2">{guide.title}</h3>
+                      <h3 className="font-bold text-lg text-[#1A3D61] mb-2">{guide.name}</h3>
                       <div className="flex flex-wrap gap-2 mb-4">
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium ${getDifficultyBadgeColor(guide.difficulty)}`}>
+                        {/*
+                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${getDifficultyBadgeColor(guide.difficulty)}`}>
                           {guide.difficulty}
-                        </span>
-                        <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
+                          </span>
+                          <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
                           {guide.time}
-                        </span>
+                          </span>
+                          */}
                       </div>
-                      <Link to={`/guides/${guide.id}`}>
+                      {/* TODO: quick placeholder style. this should be improved. */}
+                      <span className={"px-2 py-1 text-s font-small text-gray-800"}>
+                        {guide.description}
+                      </span>
+                      <Link to={`/guides/${guide.guide_id}`}>
                         <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2">
                           View Guide
                         </button>

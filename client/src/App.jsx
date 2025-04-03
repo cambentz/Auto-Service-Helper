@@ -4,7 +4,7 @@ import Layout from "./layouts/Layout";
 import Home from "./Pages/Home";
 import Garage from "./Pages/Garage";
 import Guides from "./Pages/Guides";
-import OilChangeGuide from "./Pages/Guides/OilChangeGuide";
+import GuidePage from "./Pages/GuidePage";
 import Help from "./Pages/Help";
 import Auth from "./Pages/Auth";
 import Settings from "./Pages/Settings";
@@ -23,13 +23,15 @@ const App = () => {
             <Route index element={<Home />} />
             <Route path="garage" element={<Garage />} />
             <Route path="guides" element={<Guides />} />
-            <Route path="guides/:guideId" element={<OilChangeGuide />} />
+            <Route path="guides/:guideId" element={<GuidePage />} />
             <Route path="help" element={<Help />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/reset" element={<Auth />} />
             <Route path="reset-password" element={<ResetPassword />} />
             <Route path="settings" element={<Settings />} />
             <Route path="/add-vehicle" element={<AddVehiclePage />} />
+              {/* TODO: Make and import error page */}
+            <Route path="error" element={<Home />} />
           </Route>
         </Routes>
       </AuthProvider>
