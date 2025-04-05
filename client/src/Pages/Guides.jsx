@@ -22,43 +22,32 @@ const FadeInOnView = ({ children, delay = 0 }) => {
 };
 
 const Guides = () => {
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMake, setSelectedMake] = useState("All Makes");
+  const [selectedMake, setSelectedMake] = useState(0);
   const [makes, setMakes] = useState([]);
   const [guides, setGuides] = useState([]);
   const bgRef = useRef(null);
 
   useEffect(() => {
-    axios.get(API_ENDPOINT + "/guides")
+
+    getGuides();
+
+    axios.get(API_ENDPOINT + "/vehicles/makes")
     .then(resp => {
-       setGuides(resp.data);
+      let data = resp.data.sort((a, b) => a.name > b.name)
+
+      // Move the "All Makes" make to the front of the list
+      let allMakes = data.find(make => make.id == 0);
+      data.splice(data.indexOf(allMakes), 1);
+      data.unshift(allMakes);
+      
+      setMakes(data);
     })
     .catch(err => {
       console.error(err);
     })
 
-    //TODO: make and use a GetAllMakes in local environment
-    fetch("https://vpic.nhtsa.dot.gov/api/vehicles/GetAllMakes?format=json")
-      .then((res) => res.json())
-      .then((data) => {
-        const popularMakes = [
-          "toyota", "honda", "ford", "chevrolet", "nissan", "bmw", "mercedesbenz", "hyundai",
-          "kia", "volkswagen", "subaru", "mazda", "lexus", "jeep", "dodge", "ram", "gmc", "tesla",
-          "acura", "infiniti", "buick", "chrysler", "cadillac", "volvo", "lincoln", "mitsubishi",
-          "mini", "porsche", "audi", "genesis", "landrover", "jaguar"
-        ];
-
-        const filtered = data.Results.filter((make) =>
-          popularMakes.includes(make.Make_Name.toLowerCase().replace(/[^a-z]/gi, ""))
-        );
-
-        filtered.sort((a, b) => a.Make_Name.localeCompare(b.Make_Name));
-        setMakes([{ Make_Name: "All Makes" }, ...filtered]);
-      })
-      .catch((err) => console.error("Error fetching makes:", err));
   }, []);
-
 
   // Similar parallax effect as in Home.jsx
   useEffect(() => {
@@ -84,6 +73,28 @@ const Guides = () => {
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
+  function getGuides() {
+    axios.get(API_ENDPOINT + "/guides", {
+      params: {
+        make: selectedMake > 0 ? selectedMake : null
+      }
+    })
+    .then(resp => {
+       setGuides(resp.data);
+    })
+    .catch(err => {
+      if (err.status === 404) {
+        setGuides([]);
+      }
+      else console.error(err);
+    })
+  }
+
+  // update guides whenever make filter is changed
+  useEffect(() => {
+    getGuides();
+  }, [selectedMake]);
+
   // Get all guides or filtered guides
   const getFilteredGuides = () => {
     let filteredGuides = guides;
@@ -94,7 +105,7 @@ const Guides = () => {
         guide.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
-    console.log(filteredGuides)
+
     return filteredGuides;
   };
 
@@ -179,8 +190,8 @@ const Guides = () => {
                   onChange={(e) => setSelectedMake(e.target.value)}
                 >
                   {makes.map((makeObj) => (
-                    <option key={makeObj.Make_Name} value={makeObj.Make_Name}>
-                      {makeObj.Make_Name}
+                    <option key={makeObj.id} value={makeObj.id}>
+                      {makeObj.name}
                     </option>
                   ))}
 

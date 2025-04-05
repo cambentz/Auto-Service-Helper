@@ -9,6 +9,7 @@ export default defineConfig({
     tailwindcss()
   ],
   define: {
-      API_ENDPOINT: JSON.stringify("https://gesture-garage-api.onrender.com/api")
+      API_ENDPOINT: JSON.stringify("http://127.0.0.1:3000/api"),
+      //API_ENDPOINT: JSON.stringify("https://gesture-garage-api.onrender.com/api")
   }
 })

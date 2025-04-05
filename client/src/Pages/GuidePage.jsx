@@ -41,8 +41,9 @@ const GuidePage = () => {
       setSteps(resp.data);
     })
     .catch(err => {
-      console.err(err);
-      navigate('/error');
+      console.error(err);
+      // prevents page from being added to history stack (or something like that)
+      navigate('/error', {replace: true });
     })
   }, []);
 
