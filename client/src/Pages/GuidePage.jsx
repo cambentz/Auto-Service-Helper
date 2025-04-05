@@ -37,7 +37,6 @@ const GuidePage = () => {
 
     axios.get(API_ENDPOINT + "/guides/" + guideId + "/steps")
     .then(resp => {
-      console.log(resp.data);
       setSteps(resp.data);
     })
     .catch(err => {
