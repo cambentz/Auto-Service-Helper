@@ -12,6 +12,9 @@ import {
     createStep,
     deleteStep,
     updateStep,
+    getGuideVehicles,
+    addGuideVehicle,
+    deleteGuideVehicle,
 } from "../controllers/guideController.js";
 
 const router = express.Router();
@@ -78,5 +81,27 @@ router.delete("/:id/steps/:stepNum", deleteStep);
  * @access Public
  */
 router.put("/:id/steps/:stepNum", updateStep);
+
+/**
+ * @route GET /api/guides/:id/vehicles
+ * @desc Fetch all vehicles associated with a guide
+ * @access Public
+ */
+router.get("/:id/vehicles", getGuideVehicles);
+
+/**
+ * @route POST /api/guides/:id/vehicles
+ * @desc Associate a guide with a vehicle
+ * @access Public
+ */
+router.post("/:id/vehicles", addGuideVehicle);
+
+
+/**
+ * @route DELETE /api/guides/:id/vehicles
+ * @desc Associate a guide with a vehicle
+ * @access Public
+ */
+router.delete("/:id/vehicles", deleteGuideVehicle);
 
 export default router;
