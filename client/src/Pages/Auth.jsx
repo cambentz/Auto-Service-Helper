@@ -6,6 +6,8 @@ import Loader from "../components/Loader";
 import { useLocation } from 'react-router-dom';
 import { Eye, EyeOff } from "lucide-react";
 import { isStrongPassword, getPasswordStrength, strengthColors, strengthLabels } from "../utils/password";
+import { useAuth } from "../utils/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Auth = () => {
   const location = useLocation();
@@ -17,6 +19,8 @@ const Auth = () => {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   // Toggle between login and register modes
   const toggleMode = () => {
@@ -42,6 +46,14 @@ const Auth = () => {
       setMode(location.state.mode);
     }
   }, [location]);
+
+  // 2. Detect if user directly visits "/auth/reset"
+  useEffect(() => {
+    if (location.pathname === "/auth/reset") {
+      setMode("reset");
+    }
+  }, [location.pathname]);
+
 
   // Handle input changes
   const handleChange = (e) => {
@@ -80,26 +92,33 @@ const Auth = () => {
         ? "/api/auth/register"
         : "/api/auth/forgot-password";
 
-  const payload =
-    mode === "login"
-      ? { email: formData.email, password: formData.password }
-      : mode === "register"
-        ? { ...formData, name, confirmPassword }
-        : { email: formData.email };
+    const payload =
+      mode === "login"
+        ? { email: formData.email, password: formData.password }
+        : mode === "register"
+          ? { ...formData, name, confirmPassword }
+          : { email: formData.email };
 
-  try {
-    const res = await api.post(endpoint, payload);
-    console.log("Auth Success:", res.data);
-    if (mode === "reset") {
-      setMode("login");
+    try {
+      // TODO: Replace mock login with real API call when backend is ready
+      if (mode === "login") {
+        const savedFirst = localStorage.getItem("userName");
+        login(savedFirst || "Gary");
+        navigate("/garage");
+      }
+      else if (mode === "register") {
+        login(name);
+        navigate("/garage");
+      } else {
+        // Reset password
+        setMode("login");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Something went wrong.");
     }
-  } catch (err) {
-    console.error(err);
-    setError(err.response?.data?.message || "Something went wrong.");
-  } finally {
-    setLoading(false);
-  }
-};
+
+  };
 
   const passwordStrength = getPasswordStrength(formData.password);
 

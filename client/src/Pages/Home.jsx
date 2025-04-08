@@ -5,6 +5,7 @@ import partner3 from "../assets/Placeholder.png";
 import heroBackground from "../assets/heroBackground.png";
 import { motion, useInView } from "motion/react";
 import { useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 
 const FadeInOnView = ({ children, delay = 0 }) => {
   const ref = useRef(null);
@@ -29,22 +30,22 @@ const Home = () => {
     let targetY = 0;
     let currentY = 0;
     let animationFrame;
-  
+
     const lerp = (start, end, factor) => start + (end - start) * factor;
-  
+
     const updateParallax = () => {
       targetY = window.scrollY;
       currentY = lerp(currentY, targetY, 0.21); // Smooth interpolation
-  
+
       if (bgRef.current) {
         bgRef.current.style.transform = `translateY(${currentY * 0.3}px) scale(1.1)`; // mask movement
       }
-  
+
       animationFrame = requestAnimationFrame(updateParallax);
     };
-  
+
     animationFrame = requestAnimationFrame(updateParallax);
-  
+
     return () => cancelAnimationFrame(animationFrame);
   }, []);
 
@@ -58,7 +59,7 @@ const Home = () => {
           src={heroBackground}
           alt="Auto repair background"
           className="absolute inset-0 -z-10 w-full h-[120%] object-cover object-[center_200%] brightness-50 will-change-transform scale-120"
-          />
+        />
 
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-6 py-32">
           <motion.div
@@ -91,19 +92,28 @@ const Home = () => {
               transition={{ delay: 0.6 }}
               className="flex flex-wrap justify-center gap-4"
             >
-              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
-                Browse Guides
-              </button>
-              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
-                Enter Vehicle Info
-              </button>
+              <Link to="/guides">
+                <button
+                  className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold shadow-md cursor-pointer"
+                >
+                  Browse Guides
+                </button>
+              </Link>
+
+              <Link to="/add-vehicle">
+                <button
+                  className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold shadow-md cursor-pointer"
+                >
+                  Enter Vehicle Info
+                </button>
+              </Link>
             </motion.div>
+
           </motion.div>
         </div>
       </section>
-
       {/* Features */}
-      <section className="w-full py-20 px-6 sm:px-12 bg-white">
+      < section className="w-full py-20 px-6 sm:px-12 bg-white" >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12 text-[#1A3D61]">Key Features</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -139,10 +149,10 @@ const Home = () => {
             </FadeInOnView>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* How It Works */}
-      <section className="w-full py-20 px-6 sm:px-12 bg-[#F8F8F8]">
+      < section className="w-full py-20 px-6 sm:px-12 bg-[#F8F8F8]" >
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-12 text-[#1A3D61]">How It Works</h2>
           <div className="grid md:grid-cols-3 gap-8 text-left">
@@ -172,10 +182,10 @@ const Home = () => {
             </FadeInOnView>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Partners */}
-      <section className="w-full py-16 px-6 sm:px-12 bg-white text-center">
+      < section className="w-full py-16 px-6 sm:px-12 bg-white text-center" >
         <h2 className="text-2xl font-bold text-[#1A3D61] mb-4">Our Partners</h2>
         <p className="mb-10 text-gray-600">
           We collaborate with leading tech providers, parts manufacturers, and community infrastructure partners.
@@ -185,8 +195,8 @@ const Home = () => {
           <img src={partner2} alt="Partner 2" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
           <img src={partner3} alt="Partner 3" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
         </div>
-      </section>
-    </div>
+      </section >
+    </div >
   );
 };
 
