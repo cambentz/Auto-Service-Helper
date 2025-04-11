@@ -29,7 +29,7 @@ const Button = ({
       disabled={disabled}
       aria-label={ariaLabel}
       title={title}
-      className={`px-4 py-2 rounded transition text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
+      className={`cursor-pointer px-4 py-2 rounded transition text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed ${className}`}
     >
       {children}
     </button>

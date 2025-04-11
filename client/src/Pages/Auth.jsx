@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const Auth = () => {
   const location = useLocation();
   const [mode, setMode] = useState(() => location.state?.mode || "login");
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -58,10 +58,13 @@ const Auth = () => {
   // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === "name") setName(value);
-    else if (name === "confirmPassword") setConfirmPassword(value);
-    else setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "confirmPassword") {
+      setConfirmPassword(value);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
+
 
   // Form submission handler
   const handleSubmit = async (e) => {
@@ -96,7 +99,7 @@ const Auth = () => {
       mode === "login"
         ? { email: formData.email, password: formData.password }
         : mode === "register"
-          ? { ...formData, name, confirmPassword }
+          ? { ...formData, confirmPassword }
           : { email: formData.email };
 
     try {
@@ -107,7 +110,7 @@ const Auth = () => {
         navigate("/garage");
       }
       else if (mode === "register") {
-        login(name);
+        login(formData.firstName);
         navigate("/garage");
       } else {
         // Reset password
@@ -138,15 +141,30 @@ const Auth = () => {
         <form onSubmit={handleSubmit}>
           {/* Name input for registration */}
           {mode === "register" && (
-            <InputField
-              label="Name"
-              id="name"
-              name="name"
-              placeholder="Full Name"
-              value={name}
-              onChange={handleChange}
-              required
-            />
+            <div className="flex gap-4">
+              <div className="w-1/2">
+                <InputField
+                  label="First Name"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="w-1/2">
+                <InputField
+                  label="Last Name"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
           )}
 
 
@@ -170,14 +188,14 @@ const Auth = () => {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your new password"
+                placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
                 required
               />
               <button
                 type="button"
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
                 onClick={() => setShowPassword((prev) => !prev)}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -220,7 +238,7 @@ const Auth = () => {
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer"
                   onClick={() => setShowConfirm((prev) => !prev)}
                 >
                   {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -234,7 +252,7 @@ const Auth = () => {
             <button
               type="button"
               onClick={switchToReset}
-              className="text-blue-500 hover:underline text-sm inline-block mt-2"
+              className="text-blue-500 hover:underline text-sm inline-block mt-2 cursor-pointer"
             >
               Forgot Password?
             </button>
@@ -244,11 +262,11 @@ const Auth = () => {
           {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
 
           {/* Submit button or loading spinner */}
-          <div className="mt-6">
+          <div className="mt-6" >
             {loading ? (
               <Loader message="Processing..." />
             ) : (
-              <Button type="submit" className="w-full">
+              <Button type="submit" className="w-full" >
                 {mode === "login"
                   ? "Login"
                   : mode === "register"
@@ -267,7 +285,7 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={toggleMode}
-                className="ml-1 text-blue-600 hover:underline"
+                className="ml-1 text-blue-600 hover:underline cursor-pointer"
               >
                 {mode === "login" ? "Register here" : "Login here"}
               </button>

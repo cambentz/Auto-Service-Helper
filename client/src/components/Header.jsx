@@ -144,7 +144,25 @@ function Header() {
               </Link>
 
               {isLoggedIn ? (
-                <UserDropdown displayName={displayName} />
+                <>
+
+                  <Link
+                    to="/settings"
+                    className={`transition text-[#1A3D61] hover:text-[#FFCC00]`}
+                  >
+                    Settings
+                  </Link>
+
+                  <button
+                    onClick={() => {
+                      localStorage.clear();
+                      window.location.href = "/auth";
+                    }}
+                    className="text-left text-[#1A3D61] hover:text-red-500 transition cursor-pointer"
+                  >
+                    Log Out
+                  </button>
+                </>
               ) : (
                 <Link
                   to="/auth"
@@ -154,6 +172,7 @@ function Header() {
                   Login / Register
                 </Link>
               )}
+
 
             </div>
           </motion.nav>
