@@ -24,8 +24,8 @@ class GestureService {
     
     // Gesture detection settings
     this.lastGestureTimestamp = 0;
-    this.gestureCooldown = 3000; // 3 seconds cooldown
-    this.confidenceThreshold = 0.6; // 70% confidence threshold
+    this.gestureCooldown = 2000; // 2 seconds cooldown
+    this.confidenceThreshold = 0.6; // 60% confidence threshold
     
     // Callbacks
     this.onGestureDetected = null; // Callback for navigation

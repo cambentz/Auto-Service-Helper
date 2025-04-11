@@ -18,7 +18,8 @@ const GuidePage = () => {
   // State
   const [guide, setGuide] = useState({});
   const [steps, setSteps] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
+  let [currentStep, setCurrentStep] = useState(0);
+  let currentStepRef = useRef(0) //PLEASE WORK;
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [gesturesEnabled, setGesturesEnabled] = useState(false);
@@ -106,48 +107,51 @@ const GuidePage = () => {
   
     return () => cancelAnimationFrame(animationFrame);
   }, []);
-
+  useEffect(() => {
+    currentStepRef.current = currentStep;
+    console.log("currentStep updated to:", currentStep + 1);
+  }, [currentStep]);
   // Navigation functions with useCallback for better performance
   const goToNextStep = useCallback(() => {
-    if (currentStep < steps.length - 1 && !isTransitioning && !navigationCooldown) {
+    if (currentStepRef.current < steps.length - 1 && !isTransitioning && !navigationCooldown) {
       console.log("Moving to next step");
-      
+      console.log("current step", currentStepRef.current + 1)
       // Set cooldown and transition states
       setNavigationCooldown(true);
       setIsTransitioning(true);
       setDirection(1);
-      
+      let nextStep = currentStepRef.current +  1;
       // Delayed state updates
       setTimeout(() => {
-        setCurrentStep(prevStep => prevStep + 1);
+        setCurrentStep(nextStep);
         setIsTransitioning(false);
         
         // Remove navigation cooldown after delay
         setTimeout(() => {
           setNavigationCooldown(false);
-        }, 1000); // Reduced cooldown to 1 second for better UX
+        }, 500); // Reduced cooldown 
       }, 300);
     }
   }, [currentStep, isTransitioning, navigationCooldown, steps.length]);
   
   const goToPrevStep = useCallback(() => {
-    if (!isTransitioning && !navigationCooldown) {
+    if (currentStepRef.current > 0 &&!isTransitioning && !navigationCooldown) {
       console.log("Moving to previous step");
-      
+      console.log("current step", currentStepRef.current +1);
       // Set cooldown and transition states
       setNavigationCooldown(true);
       setIsTransitioning(true);
       setDirection(-1);
-      
+      const prevStep = currentStepRef.current - 1;
       // Delayed state updates
       setTimeout(() => {
-        setCurrentStep(prevStep => prevStep - 1);
+        setCurrentStep(prevStep);
         setIsTransitioning(false);
         
         // Remove navigation cooldown after delay
         setTimeout(() => {
           setNavigationCooldown(false);
-        }, 1000); // Reduced cooldown to 1 second for better UX
+        }, 500); 
       }, 300);
     }
   }, [currentStep, isTransitioning, navigationCooldown]);
