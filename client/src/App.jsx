@@ -10,6 +10,7 @@ import Auth from "./Pages/Auth";
 import Settings from "./Pages/Settings";
 import ResetPassword from './Pages/ResetPassword';
 import AddVehiclePage from "./Pages/AddVehiclePage";
+import ErrorPage from "./Pages/ErrorPage";
 import { AuthProvider } from "./utils/AuthContext";
 
 const App = () => {
@@ -30,8 +31,7 @@ const App = () => {
             <Route path="reset-password" element={<ResetPassword />} />
             <Route path="settings" element={<Settings />} />
             <Route path="/add-vehicle" element={<AddVehiclePage />} />
-              {/* TODO: Make and import error page */}
-            <Route path="error" element={<Home />} />
+            <Route path="*" element={<ErrorPage />} />
           </Route>
         </Routes>
       </AuthProvider>

@@ -33,19 +33,19 @@ const Guides = () => {
     getGuides();
 
     axios.get(API_ENDPOINT + "/vehicles/makes")
-    .then(resp => {
-      let data = resp.data.sort((a, b) => a.name > b.name)
+      .then(resp => {
+        let data = resp.data.sort((a, b) => a.name > b.name)
 
-      // Move the "All Makes" make to the front of the list
-      let allMakes = data.find(make => make.id == 0);
-      data.splice(data.indexOf(allMakes), 1);
-      data.unshift(allMakes);
-      
-      setMakes(data);
-    })
-    .catch(err => {
-      console.error(err);
-    })
+        // Move the "All Makes" make to the front of the list
+        let allMakes = data.find(make => make.id == 0);
+        data.splice(data.indexOf(allMakes), 1);
+        data.unshift(allMakes);
+
+        setMakes(data);
+      })
+      .catch(err => {
+        console.error(err);
+      })
 
   }, []);
 
@@ -79,15 +79,15 @@ const Guides = () => {
         make: selectedMake > 0 ? selectedMake : null
       }
     })
-    .then(resp => {
-       setGuides(resp.data);
-    })
-    .catch(err => {
-      if (err.status === 404) {
-        setGuides([]);
-      }
-      else console.error(err);
-    })
+      .then(resp => {
+        setGuides(resp.data);
+      })
+      .catch(err => {
+        if (err.status === 404) {
+          setGuides([]);
+        }
+        else console.error(err);
+      })
   }
 
   // update guides whenever make filter is changed
@@ -210,39 +210,31 @@ const Guides = () => {
             {filteredGuides.length > 0 ? (
               filteredGuides.map((guide, index) => (
                 <FadeInOnView key={guide.guide_id} delay={0.1 * (index % 3)}>
-                  <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition">
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition flex flex-col h-full">
+                    {/* Placeholder Image */}
                     <div className="h-40 bg-gray-200 flex items-center justify-center">
                       <div className="text-[#1A3D61] text-5xl opacity-50">
-                        {/* Placeholder for guide image */}
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="..." />
                         </svg>
                       </div>
                     </div>
-                    <div className="p-5">
+
+                    {/* Content */}
+                    <div className="p-5 flex flex-col flex-grow">
                       <h3 className="font-bold text-lg text-[#1A3D61] mb-2">{guide.name}</h3>
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {/*
-                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${getDifficultyBadgeColor(guide.difficulty)}`}>
-                          {guide.difficulty}
-                          </span>
-                          <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                          {guide.time}
-                          </span>
-                          */}
-                      </div>
-                      {/* TODO: quick placeholder style. this should be improved. */}
-                      <span className={"px-2 py-1 text-s font-small text-gray-800"}>
-                        {guide.description}
-                      </span>
+                      <p className="text-sm text-gray-700 flex-grow">{guide.description}</p>
+
                       <Link to={`/guides/${guide.guide_id}`}>
-                        <button className="w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium mt-2">
+                        <button className="mt-4 w-full px-4 py-2 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium cursor-pointer">
                           View Guide
                         </button>
                       </Link>
                     </div>
                   </div>
                 </FadeInOnView>
+
+
               ))
             ) : (
               <div className="col-span-full text-center py-12">
@@ -262,7 +254,6 @@ const Guides = () => {
         <div className="max-w-6xl mx-auto">
           <FadeInOnView>
             <h2 className="text-2xl font-bold mb-8 text-[#1A3D61] text-center">Popular Guides</h2>
-
             <div className="grid md:grid-cols-3 gap-8">
               <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
                 <span className="inline-block mb-3 text-[#1A3D61]">
@@ -272,7 +263,7 @@ const Guides = () => {
                 </span>
                 <h3 className="font-bold text-lg mb-2">Beginner's Guide</h3>
                 <p className="text-gray-600 mb-4">Essential maintenance every car owner should know. Perfect for first-time DIYers.</p>
-                <button className="text-[#1A3D61] font-medium hover:underline flex items-center">
+                <button className="text-[#1A3D61] font-medium hover:underline flex items-center cursor-pointer">
                   Learn more
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -288,7 +279,7 @@ const Guides = () => {
                 </span>
                 <h3 className="font-bold text-lg mb-2">Emergency Fixes</h3>
                 <p className="text-gray-600 mb-4">Quick temporary repairs to get you safely to a mechanic when things go wrong.</p>
-                <button className="text-[#1A3D61] font-medium hover:underline flex items-center">
+                <button className="text-[#1A3D61] font-medium hover:underline flex items-center cursor-pointer">
                   Learn more
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -304,7 +295,7 @@ const Guides = () => {
                 </span>
                 <h3 className="font-bold text-lg mb-2">Safety Checks</h3>
                 <p className="text-gray-600 mb-4">Regular inspections to ensure your vehicle remains safe for you and your passengers.</p>
-                <button className="text-[#1A3D61] font-medium hover:underline flex items-center">
+                <button className="text-[#1A3D61] font-medium hover:underline flex items-center cursor-pointer">
                   Learn more
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -325,10 +316,10 @@ const Guides = () => {
               Our community is growing daily. Request a guide or contribute your expertise.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold">
+              <button className="px-6 py-3 bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition text-lg font-semibold cursor-pointer">
                 Request a Guide
               </button>
-              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold">
+              <button className="px-6 py-3 bg-white text-[#1A3D61] hover:bg-gray-200 border border-[#1A3D61] rounded-lg transition text-lg font-semibold cursor-pointer">
                 Contribute
               </button>
             </div>
