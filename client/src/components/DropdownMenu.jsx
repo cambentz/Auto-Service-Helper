@@ -57,7 +57,7 @@ export const DropdownMenuItem = ({ children, onClick, disabled }) => {
 
   const handleClick = () => {
     if (!disabled) {
-      setIsOpen(false); // close dropdown
+      setIsOpen(false);
       onClick?.();
     }
   };

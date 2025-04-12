@@ -63,7 +63,7 @@ const Settings = () => {
   return (
     <div className="flex min-h-screen bg-[#F8F8F8] text-black">
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r p-6">
+      <aside className="hidden md:block w-64 bg-white border-r p-6">
         <nav className="space-y-4 text-sm">
           <h2 className="text-lg font-semibold mb-4 text-[#1A3D61]">Settings</h2>
           <a href="#account" className="text-[#1A3D61] font-medium block">Account</a>
@@ -73,7 +73,7 @@ const Settings = () => {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 flex justify-center p-10">
+      <main className="flex-1 flex justify-center px-4 sm:px-8 md:px-10 py-6">
         <div className="w-full max-w-3xl space-y-10">
 
           {/* Account Info */}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 import { motion, AnimatePresence } from "motion/react";
@@ -23,10 +23,16 @@ function Header() {
   const displayName = user?.name || storedName || "Guest";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  useEffect(() => {
+    // Close the mobile menu on route change (logo click or external link)
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+  
   const isActive = (path) => location.pathname === path;
 
 
   const toggleMenu = () => setIsMenuOpen(prev => !prev);
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <header className="sticky top-0 z-50 bg-[#F8F8F8] text-black shadow-md">
@@ -120,6 +126,7 @@ function Header() {
             <div className="flex flex-col space-y-3">
               <Link
                 to="/garage"
+                onClick={closeMenu}
                 className={`transition ${isActive("/garage") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
                   }`}
               >
@@ -128,6 +135,7 @@ function Header() {
 
               <Link
                 to="/guides"
+                onClick={closeMenu}
                 className={`transition ${isActive("/guides") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
                   }`}
               >
@@ -136,6 +144,7 @@ function Header() {
 
               <Link
                 to="/help"
+                onClick={closeMenu}
                 state={{ reset: true }}
                 className={`transition ${isActive("/help") ? "text-[#FFCC00] font-semibold underline" : "text-[#1A3D61] hover:text-[#FFCC00]"
                   }`}
@@ -148,6 +157,7 @@ function Header() {
 
                   <Link
                     to="/settings"
+                    onClick={closeMenu}
                     className={`transition text-[#1A3D61] hover:text-[#FFCC00]`}
                   >
                     Settings
@@ -155,6 +165,7 @@ function Header() {
 
                   <button
                     onClick={() => {
+                      closeMenu();
                       localStorage.clear();
                       window.location.href = "/auth";
                     }}
@@ -166,14 +177,13 @@ function Header() {
               ) : (
                 <Link
                   to="/auth"
+                  onClick={closeMenu}
                   state={{ mode: 'login' }}
                   className={`transition ${isActive("/auth") ? "text-[#66CC66] font-semibold underline" : "text-[#1A3D61] hover:text-[#66CC66]"}`}
                 >
                   Login / Register
                 </Link>
               )}
-
-
             </div>
           </motion.nav>
         )}

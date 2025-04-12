@@ -37,7 +37,15 @@ const UserDropdown = ({ displayName = "User" }) => {
                 <DropdownMenuItem onClick={() => navigate("/garage")}>My Garage</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/settings")}>Settings</DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/help")}>Help Center</DropdownMenuItem>
-                <DropdownMenuItem onClick={logout}>Log Out</DropdownMenuItem>
+                <DropdownMenuItem
+                    onClick={() => {
+                        logout();
+                        window.location.href = "/auth";
+                    }}
+                >
+                    Log Out
+                </DropdownMenuItem>
+
             </DropdownMenuContent>
         </DropdownMenu>
 

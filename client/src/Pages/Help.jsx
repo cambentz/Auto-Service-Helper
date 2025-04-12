@@ -66,8 +66,8 @@ const Help = () => {
 
   const [hasSearched, setHasSearched] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // actual query used for searching
-  const [inputValue, setInputValue] = useState(""); // user typing
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const firstMatchRef = useRef(null);
   const noResultsRef = useRef(null);
   const location = useLocation();
@@ -79,7 +79,6 @@ const Help = () => {
       setHasSearched(false);
       firstMatchRef.current = null;
 
-      // Clean up the navigation state after resetting
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -126,11 +125,11 @@ const Help = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setSearchQuery(inputValue);  // trigger actual search
-              setHasSearched(true);        // trigger scroll + highlight
+              setSearchQuery(inputValue); 
+              setHasSearched(true);       
             }}
 
-            className="flex flex-col sm:flex-row justify-center items-center gap-4"
+            className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-4"
           >
             <input
               type="text"
@@ -153,7 +152,7 @@ const Help = () => {
       </section>
 
       {/* Help Topics */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 py-12 sm:py-16">
         <h2 className="text-2xl font-bold text-[#1A3D61] mb-8">Browse Topics</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">

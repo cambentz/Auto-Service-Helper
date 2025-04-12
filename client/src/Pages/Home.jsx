@@ -35,10 +35,10 @@ const Home = () => {
 
     const updateParallax = () => {
       targetY = window.scrollY;
-      currentY = lerp(currentY, targetY, 0.21); // Smooth interpolation
+      currentY = lerp(currentY, targetY, 0.21);
 
       if (bgRef.current) {
-        bgRef.current.style.transform = `translateY(${currentY * 0.3}px) scale(1.1)`; // mask movement
+        bgRef.current.style.transform = `translateY(${currentY * 0.3}px) scale(1.1)`;
       }
 
       animationFrame = requestAnimationFrame(updateParallax);
