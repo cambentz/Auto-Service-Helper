@@ -33,21 +33,29 @@ const Guides = () => {
     getGuides();
 
     axios.get(API_ENDPOINT + "/vehicles/makes")
-      .then(resp => {
-        let data = resp.data.sort((a, b) => a.name > b.name)
-
-        // Move the "All Makes" make to the front of the list
-        let allMakes = data.find(make => make.id == 0);
+  .then(resp => {
+    // Check if response data is an array before attempting to sort
+    if (Array.isArray(resp.data)) {
+      let data = [...resp.data].sort((a, b) => a.name > b.name ? 1 : -1);
+      
+      // Make sure "All Makes" exists before trying to modify the array
+      let allMakes = data.find(make => make.id == 0);
+      if (allMakes) {
         data.splice(data.indexOf(allMakes), 1);
         data.unshift(allMakes);
-
-        setMakes(data);
-      })
-      .catch(err => {
-        console.error(err);
-      })
-
-  }, []);
+      }
+      
+      setMakes(data);
+    } else {
+      // Handle non-array response
+      console.error('Expected array, received:', typeof resp.data, resp.data);
+      setMakes([]); // Set empty array as fallback
+    }
+  })
+  .catch(err => {
+    console.error('Error fetching makes:', err);
+    setMakes([]); // Set empty array as fallback
+  });
 
   // Similar parallax effect as in Home.jsx
   useEffect(() => {
