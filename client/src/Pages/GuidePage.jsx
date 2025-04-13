@@ -7,6 +7,9 @@ import gestureService from "../GestureNav/GestureService.js";
 import GestureControl from "../GestureNav/GestureControl";
 import axios from "axios";
 
+
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT
+
 const GuidePage = () => {
   const navigate = useNavigate();
   
