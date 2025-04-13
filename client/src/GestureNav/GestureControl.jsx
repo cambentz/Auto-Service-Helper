@@ -12,7 +12,7 @@ const GestureControl = ({
   // Refs for video and canvas elements
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
-
+  
   // Component state
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
@@ -20,15 +20,13 @@ const GestureControl = ({
   const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
   const [initializing, setInitializing] = useState(false);
   const [refsReady, setRefsReady] = useState(false);
-  const [isResetting, setIsResetting] = useState(false);
-  const [showVideo, setShowVideo] = useState(false); // Hidden by default
-
+  
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
     { gesture: "👍 Thumb Up", action: "Next Step" },
     { gesture: "👎 Thumb Down", action: "Previous Step" }
   ];
-
+  
   // Check if refs are available
   useEffect(() => {
     if (videoRef.current && canvasRef.current) {
@@ -37,7 +35,7 @@ const GestureControl = ({
       setRefsReady(false);
     }
   }, [videoRef.current, canvasRef.current]);
-
+  
   // Callback for UI updates (doesn't trigger navigation)
   const handleGestureUpdate = (gesture, confidence, handedness) => {
     setGestureOutput({
@@ -46,16 +44,16 @@ const GestureControl = ({
       handedness: handedness
     });
   };
-
+  
   // Callback for gesture actions that trigger navigation
   const handleGestureAction = (gesture, confidence, handedness) => {
     console.log(`Action trigger for ${gesture} gesture with confidence ${confidence}`);
-
+    
     // Call the parent's callback
     if (onGestureDetected) {
       try {
         onGestureDetected(gesture, confidence);
-
+        
         // Ensure prediction continues after the action
         setTimeout(() => {
           gestureService.restartLoop();
@@ -66,141 +64,117 @@ const GestureControl = ({
       }
     }
   };
-
+  
   // Function to reset webcam if there are issues
   const resetWebcam = async () => {
-    if (isResetting) return;
-    setIsResetting(true);
-
+    setHasError(false);
+    
     try {
-      setHasError(false);
-
-      // Stop current webcam
-      gestureService.stopWebcam();
-
-      // Short delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      // Reset cooldown to allow immediate gestures
-      gestureService.resetCooldown();
-
-      // Start webcam again
-      if (videoRef.current && canvasRef.current) {
-        await gestureService.startWebcam();
-        console.log("Webcam reset successfully");
-      } else {
-        console.error("Refs not available on reset");
+      // Await the reset process
+      const success = await gestureService.resetWebcam();
+      if (!success) {
+        console.error("Reset failed");
         setHasError(true);
+      } else {
+        console.log("Webcam reset successfully");
       }
     } catch (error) {
       console.error("Error resetting webcam:", error);
       setHasError(true);
-    } finally {
-      setIsResetting(false);
     }
   };
-
+  
   // Toggle minimized state
   const toggleMinimized = () => {
     setMinimized(prev => !prev);
   };
-
+  
   // Initialize gesture service when enabled and refs are ready
   useEffect(() => {
-    let initTimeout;
-
-    const setupGestureRecognition = async () => {
-      // Only proceed if not already initializing or initialized
-      if (initializing || initialized) return;
-
-      // Check if enabled and refs are available
-      if (!isEnabled || !refsReady) {
-        if (!refsReady && isEnabled) {
-          console.log("Waiting for video and canvas refs to be available");
-        }
-        return;
-      }
-
+    let initTimer = null;
+    
+    // Only initialize if enabled and not already initialized
+    if (isEnabled && !initialized && !initializing && refsReady) {
       setInitializing(true);
+      
+      // Use a debounce to prevent rapid initialization attempts
+      initTimer = setTimeout(async () => {
+        try {
+          console.log("Initializing gesture service");
+          setHasError(false);
+          
+          // Extra check to make double sure refs exist
+          if (!videoRef.current || !canvasRef.current) {
+            console.error("Video or canvas refs are not available yet");
+            setHasError(true);
+            setInitializing(false);
+            return;
+          }
+          
+          // Set mobile mode explicitly if provided, otherwise use component's isMobile prop
+          if (forceMobile !== null) {
+            gestureService.setMobileMode(forceMobile);
+          } else if (isMobile !== undefined) {
+            gestureService.setMobileMode(isMobile);
+          }
 
-      try {
-        console.log("Initializing gesture service");
-        setHasError(false);
-
-        // Extra check to make double sure refs exist
-        if (!videoRef.current || !canvasRef.current) {
-          console.error("Video or canvas refs are not available yet");
-          setHasError(true);
-          setInitializing(false);
-          return;
-        }
-
-        // Set mobile mode explicitly if provided, otherwise use component's isMobile prop
-        if (forceMobile !== null) {
-          gestureService.setMobileMode(forceMobile);
-        } else if (isMobile !== undefined) {
-          gestureService.setMobileMode(isMobile);
-        }
-
-        // Initialize service with our elements and callbacks
-        const success = await gestureService.initialize(
-          videoRef.current,
-          canvasRef.current,
-          handleGestureAction,
-          handleGestureUpdate
-        );
-
-        if (success) {
-          console.log("Gesture service initialized successfully");
-          setInitialized(true);
-
-          try {
-            await gestureService.startWebcam();
-            console.log("Webcam started successfully");
-          } catch (webcamError) {
-            console.error("Failed to start webcam:", webcamError);
+          // Initialize service with our elements and callbacks
+          const success = await gestureService.initialize(
+            videoRef.current,
+            canvasRef.current,
+            handleGestureAction,
+            handleGestureUpdate
+          );
+          
+          if (success) {
+            console.log("Gesture service initialized successfully");
+            setInitialized(true);
+            
+            try {
+              await gestureService.startWebcam();
+              console.log("Webcam started successfully");
+            } catch (webcamError) {
+              console.error("Failed to start webcam:", webcamError);
+              setHasError(true);
+            }
+          } else {
+            console.error("Failed to initialize gesture service");
             setHasError(true);
           }
-        } else {
-          console.error("Failed to initialize gesture service");
+        } catch (error) {
+          console.error("Failed to initialize gesture control:", error);
           setHasError(true);
+        } finally {
+          setInitializing(false);
         }
-      } catch (error) {
-        console.error("Failed to initialize gesture control:", error);
-        setHasError(true);
-      } finally {
-        setInitializing(false);
-      }
-    };
-
-    // Try initialization with a delay to ensure DOM is ready
-    initTimeout = setTimeout(() => {
-      setupGestureRecognition();
-    }, 1000);
-
-    // Cleanup when component unmounts or when disabled
+      }, 500); // Debounce for 500ms
+    }
+    
+    // Cleanup function
     return () => {
-      if (initTimeout) clearTimeout(initTimeout);
-      if (initialized) {
+      if (initTimer) clearTimeout(initTimer);
+      
+      // Only clean up if component is unmounting or disabled
+      if (!isEnabled && initialized) {
         gestureService.stopWebcam();
         setInitialized(false);
       }
     };
-  }, [isEnabled, refsReady, initialized, initializing]);
-
+  }, [isEnabled, initialized, initializing, refsReady]);
+  
   // Monitor video element for errors
   useEffect(() => {
     if (!videoRef.current) return;
-
+    
     const videoElement = videoRef.current;
-
+    
     const handleVideoError = (e) => {
       console.error("Video element error:", e);
       setHasError(true);
     };
-
+    
     videoElement.addEventListener('error', handleVideoError);
-
+    
     // Check for stalled video periodically
     const stalledInterval = setInterval(() => {
       if (initialized && videoElement && 
@@ -209,13 +183,13 @@ const GestureControl = ({
         resetWebcam();
       }
     }, 10000);
-
+    
     return () => {
       videoElement.removeEventListener('error', handleVideoError);
       clearInterval(stalledInterval);
     };
   }, [videoRef.current, initialized]);
-
+  
   // Effect to track when the component is unmounted
   useEffect(() => {
     return () => {
@@ -225,16 +199,16 @@ const GestureControl = ({
       }
     };
   }, []);
-
+  
   // Don't render anything if gestures are disabled
   if (!isEnabled) return null;
-
+  
   // Determine panel class based on mobile status
   const panelClass = isMobile 
     ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
       (minimized ? " w-12 h-12" : " w-56")
     : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
-
+  
   // Render minimized view for mobile if minimized
   if (isMobile && minimized) {
     return (
@@ -251,7 +225,7 @@ const GestureControl = ({
       </div>
     );
   }
-
+  
   // Full view
   return (
     <div className={panelClass + " transition-all duration-300"}>
@@ -270,7 +244,7 @@ const GestureControl = ({
           </button>
         </div>
       )}
-
+      
       {/* Video and canvas container */}
       <div className="relative w-full bg-gray-900 overflow-hidden" style={{ height: '160px' }}>
         {/* Placeholder if not initialized */}
@@ -280,19 +254,19 @@ const GestureControl = ({
             <p className="text-sm">Initializing camera...</p>
           </div>
         )}
-
+        
         <video 
           ref={videoRef}
           autoPlay
           playsInline
           muted
-          className={showVideo ? "w-full h-full object-cover" : "hidden"}
+          className="w-full h-full object-cover"
         ></video>
         <canvas 
           ref={canvasRef}
           className="absolute top-0 left-0 w-full h-full"
         ></canvas>
-
+        
         {/* Error overlay */}
         {hasError && (
           <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center text-white p-4">
@@ -306,7 +280,7 @@ const GestureControl = ({
             </button>
           </div>
         )}
-
+        
         {/* Close button */}
         <button 
           onClick={onToggle}
@@ -318,7 +292,7 @@ const GestureControl = ({
           </svg>
         </button>
       </div>
-
+      
       {/* Gesture output display */}
       {gestureOutput && (
         <div className="bg-gray-800 text-white p-2 text-sm">
@@ -336,7 +310,7 @@ const GestureControl = ({
           </div>
         </div>
       )}
-
+      
       {/* Instructions */}
       <div className="bg-white p-3 text-sm">
         {!isMobile && (
@@ -350,21 +324,13 @@ const GestureControl = ({
             </div>
           ))}
         </div>
-
+        
         {/* Reset button */}
         <button 
           onClick={resetWebcam}
           className="w-full mt-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs"
         >
           Reset Camera
-        </button>
-
-        {/* Toggle video visibility button */}
-        <button 
-          onClick={() => setShowVideo(prev => !prev)}
-          className="w-full mt-2 px-2 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs"
-        >
-          {showVideo ? "Hide Camera Feed" : "Show Camera Feed"}
         </button>
       </div>
     </div>

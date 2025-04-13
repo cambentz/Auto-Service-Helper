@@ -24,6 +24,9 @@ class GestureService {
     this.isMobile = this.checkIfMobile();
     this.isWebcamStarted = false;
     this.isInitializing = false;
+    this.initializationInProgress = false;
+    this.resetAttempts = 0;
+    this._lastFrameTime = 0;
     
     // Gesture detection settings
     this.lastGestureTimestamp = 0;
@@ -72,6 +75,7 @@ class GestureService {
     
     return isMobile;
   }
+  
   setMobileMode(isMobile) {
     const mobileMode = !!isMobile; // Convert to boolean
     
@@ -106,26 +110,34 @@ class GestureService {
     
     return this.isMobile;
   }
+  
   /**
    * Initialize the gesture service with required elements and callbacks
    */
   async initialize(videoElement, canvasElement, onGestureCallback, onGestureUpdate) {
     // Prevent concurrent initialization
-    if (this.isInitializing) {
+    if (this.initializationInProgress) {
       console.log("Already initializing, please wait");
       return false;
     }
     
-    this.isInitializing = true;
+    if (this.isInitialized) {
+      console.log("Already initialized");
+      return true;
+    }
+    
+    this.initializationInProgress = true;
     
     try {
       if (!videoElement) {
         console.error("Video element is required but not provided");
+        this.initializationInProgress = false;
         return false;
       }
       
       if (!canvasElement) {
         console.error("Canvas element is required but not provided");
+        this.initializationInProgress = false;
         return false;
       }
 
@@ -139,7 +151,7 @@ class GestureService {
       // Check for device camera capabilities
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         console.error("This browser does not support camera access");
-        this.isInitializing = false;
+        this.initializationInProgress = false;
         return false;
       }
 
@@ -162,22 +174,22 @@ class GestureService {
           runningMode: this.runningMode,
           numHands: 1, // Limit to 1 hand for better performance, especially on mobile
           minHandDetectionConfidence: this.isMobile ? 0.5 : 0.6,
-          minHandPresenceConfidence: this.isMobile ? 0.5 : 0.6,
-          minTrackingConfidence: this.isMobile ? 0.5 : 0.6
+          minHandPresenceConfidence: this.iMobile ? 0.5 : 0.6,
+          minTrackingConfidence: this.iMobile ? 0.5 : 0.6
         });
 
         this.isInitialized = true;
         console.log("GestureRecognizer initialized successfully");
-        this.isInitializing = false;
+        this.initializationInProgress = false;
         return true;
       } catch (error) {
         console.error("Error initializing GestureRecognizer:", error);
-        this.isInitializing = false;
+        this.initializationInProgress = false;
         return false;
       }
     } catch (error) {
       console.error("Error during initialization:", error);
-      this.isInitializing = false;
+      this.initializationInProgress = false;
       return false;
     }
   }
@@ -203,42 +215,93 @@ class GestureService {
       return true;
     }
 
-    try {
-      console.log("Starting webcam...");
-      // Request camera access with appropriate constraints for mobile
-      const constraints = {
-        video: {
-          facingMode: "user", // Use front camera for mobile
-          width: { ideal: this.isMobile ? 640 : 1280 },
-          height: { ideal: this.isMobile ? 480 : 720 },
-          frameRate: { ideal: this.isMobile ? 15 : 30 } // Lower frameRate for mobile
-        }
-      };
-      
-      // Get the media stream
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Set up video stream
-      this.video.srcObject = stream;
-      this.webcamRunning = true;
-      this.isWebcamStarted = true;
-      console.log("Camera stream obtained successfully");
-
-      // Remove any existing loadeddata listeners to prevent duplicates
-      this.video.removeEventListener("loadeddata", this.startDetection);
-      
-      // Use a Promise to ensure video is properly loaded
-      await new Promise((resolve) => {
+    // Use a Promise with both timeout and success conditions
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log("Starting webcam...");
+        // Request camera access with appropriate constraints for mobile
+        const constraints = {
+          video: this.preferredVideoConstraints || {
+            facingMode: "user", // Use front camera for mobile
+            width: { ideal: this.isMobile ? 640 : 1280 },
+            height: { ideal: this.isMobile ? 480 : 720 },
+            frameRate: { ideal: this.iMobile ? 15 : 30 } // Lower frameRate for mobile
+          }
+        };
+        
+        // Set a timeout as a fallback
+        const timeoutId = setTimeout(() => {
+          reject(new Error("Camera initialization timeout"));
+        }, 10000); // 10-second timeout
+        
+        // Get the media stream
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        
+        // Set up video stream
+        this.video.srcObject = stream;
+        console.log("Camera stream obtained successfully");
+        
+        // Remove any existing loadeddata listeners to prevent duplicates
+        this.video.removeEventListener("loadeddata", this.startDetection);
+        
+        // Wait for video to be properly loaded
         const videoLoaded = () => {
+          clearTimeout(timeoutId);
           this.video.removeEventListener("loadeddata", videoLoaded);
           console.log("Video data loaded, setting up canvas");
           
-          // Set canvas dimensions to match video
-          this.canvas.width = this.video.videoWidth;
-          this.canvas.height = this.video.videoHeight;
-          
-          console.log(`Video dimensions: ${this.video.videoWidth}x${this.video.videoHeight}`);
-          resolve();
+          if (this.video.videoWidth > 0 && this.video.videoHeight > 0) {
+            // Set canvas dimensions to match video
+            this.canvas.width = this.video.videoWidth;
+            this.canvas.height = this.video.videoHeight;
+            
+            console.log(`Video dimensions: ${this.video.videoWidth}x${this.video.videoHeight}`);
+            
+            // Reset state
+            this.lastVideoTime = -1;
+            this.lastGestureTimestamp = 0;
+            
+            // Add event listeners for mobile-specific events
+            document.addEventListener('visibilitychange', this.handleVisibilityChange);
+            document.addEventListener('pagehide', this.handlePageHidden);
+            window.addEventListener('orientationchange', this.handleOrientationChange);
+            
+            // Start prediction loop
+            this.webcamRunning = true;
+            this.isWebcamStarted = true;
+            this.animationFrame = requestAnimationFrame(this.predictWebcam);
+            
+            resolve(true);
+          } else {
+            // Try again if dimensions are not available yet
+            setTimeout(() => {
+              if (this.video.videoWidth > 0 && this.video.videoHeight > 0) {
+                this.canvas.width = this.video.videoWidth;
+                this.canvas.height = this.video.videoHeight;
+                
+                console.log(`Video dimensions: ${this.video.videoWidth}x${this.video.videoHeight}`);
+                
+                // Reset state
+                this.lastVideoTime = -1;
+                this.lastGestureTimestamp = 0;
+                
+                // Add event listeners
+                document.addEventListener('visibilitychange', this.handleVisibilityChange);
+                document.addEventListener('pagehide', this.handlePageHidden);
+                window.addEventListener('orientationchange', this.handleOrientationChange);
+                
+                // Start prediction loop
+                this.webcamRunning = true;
+                this.isWebcamStarted = true;
+                this.animationFrame = requestAnimationFrame(this.predictWebcam);
+                
+                clearTimeout(timeoutId);
+                resolve(true);
+              } else {
+                reject(new Error("Failed to get video dimensions"));
+              }
+            }, 1000);
+          }
         };
         
         if (this.video.readyState >= 2) {
@@ -248,26 +311,12 @@ class GestureService {
           // Wait for video to load
           this.video.addEventListener("loadeddata", videoLoaded);
         }
-      });
-      
-      // Reset state
-      this.lastVideoTime = -1;
-      this.lastGestureTimestamp = 0;
-      
-      // Add event listeners for mobile-specific events
-      document.addEventListener('visibilitychange', this.handleVisibilityChange);
-      document.addEventListener('pagehide', this.handlePageHidden);
-      window.addEventListener('orientationchange', this.handleOrientationChange);
-      
-      // Start prediction loop
-      this.animationFrame = requestAnimationFrame(this.predictWebcam);
-      
-      return true;
-    } catch (error) {
-      console.error("Error starting webcam:", error);
-      this.isWebcamStarted = false;
-      return false;
-    }
+      } catch (error) {
+        console.error("Error starting webcam:", error);
+        this.isWebcamStarted = false;
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -385,13 +434,80 @@ class GestureService {
   }
 
   /**
+   * Reset the webcam connection
+   */
+  async resetWebcam() {
+    console.log("Attempting to reset webcam");
+    
+    // Track the reset attempts to avoid infinite loops
+    if (!this.resetAttempts) this.resetAttempts = 0;
+    this.resetAttempts++;
+    
+    // If we've tried too many times, give up
+    if (this.resetAttempts > 3) {
+      console.error("Too many webcam reset attempts, giving up");
+      this.resetAttempts = 0;
+      return false;
+    }
+    
+    try {
+      // First stop any existing camera
+      if (this.isWebcamStarted) {
+        this.stopWebcam();
+        // Short delay to ensure resources are released
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // Reset cooldown
+      this.lastGestureTimestamp = 0;
+      
+      // Only try to start if refs are valid
+      if (!this.video || !this.canvas) {
+        console.error("Invalid video/canvas references");
+        return false;
+      }
+      
+      // Start again
+      const success = await this.startWebcam();
+      
+      if (success) {
+        console.log("Webcam reset successfully");
+        this.resetAttempts = 0;
+        return true;
+      } else {
+        console.error("Failed to reset webcam");
+        return false;
+      }
+    } catch (error) {
+      console.error("Error resetting webcam:", error);
+      return false;
+    }
+  }
+
+  /**
    * Main prediction loop for webcam frames
    */
   predictWebcam() {
     // Exit if webcam is no longer running or elements are missing
     if (!this.webcamRunning || !this.video || !this.canvas || !this.gestureRecognizer) {
       console.log("Webcam stopped or elements missing, exiting prediction loop");
+      this.animationFrame = null;
       return;
+    }
+    
+    // Throttle frame rate for mobile
+    if (this.isMobile && this._lastFrameTime) {
+      const now = Date.now();
+      const elapsed = now - this._lastFrameTime;
+      
+      // Only process ~15 fps on mobile (66ms between frames)
+      if (elapsed < 66) {
+        this.animationFrame = requestAnimationFrame(this.predictWebcam);
+        return;
+      }
+      this._lastFrameTime = now;
+    } else {
+      this._lastFrameTime = Date.now();
     }
   
     // Check if video dimensions are valid
