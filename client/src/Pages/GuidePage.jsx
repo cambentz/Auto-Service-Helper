@@ -221,23 +221,19 @@ const GuidePage = () => {
       console.log("Ignoring gesture during transition");
       return;
     }
-  
+
     // Explicit mapping of gestures to navigation actions
     switch (gesture) {
       case "Thumb_Up":
         if (currentStepRef.current < steps.length - 1) {
           console.log("Gesture: Next step");
           goToNextStep();
-        } else {
-          console.log("Already at last step");
         }
         break;
       case "Thumb_Down":
         if (currentStepRef.current > 0) {
           console.log("Gesture: Previous step");
           goToPrevStep();
-        } else {
-          console.log("Already at first step");
         }
         break;
       default:
@@ -295,7 +291,7 @@ const GuidePage = () => {
         setRequestingCamera(false);
       }
     } else {
-      // Just disable gestures and clean up resources
+      // Just disable gestures
       console.log("Disabling gestures");
       setGesturesEnabled(false);
       setRequestingCamera(false);
