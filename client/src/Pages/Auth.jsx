@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 const Auth = () => {
   const location = useLocation();
   const [mode, setMode] = useState(() => location.state?.mode || "login");
-  const [formData, setFormData] = useState({ firstName: "", lastName: "", email: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", email: "", password: "" });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -99,7 +99,7 @@ const Auth = () => {
       mode === "login"
         ? { email: formData.email, password: formData.password }
         : mode === "register"
-          ? { ...formData, confirmPassword }
+          ? { username: formData.username, email: formData.email, password: formData.password, confirmPassword }
           : { email: formData.email };
 
     try {
@@ -110,7 +110,7 @@ const Auth = () => {
         navigate("/garage");
       }
       else if (mode === "register") {
-        login(formData.firstName);
+        login(formData.username);
         navigate("/garage");
       } else {
         // Reset password
@@ -124,6 +124,15 @@ const Auth = () => {
   };
 
   const passwordStrength = getPasswordStrength(formData.password);
+
+  const handleUsernameChange = (e) => {
+    const raw = e.target.value;
+    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, ""); // remove non-alphanumeric
+    if (cleaned.length <= 15) {
+      setFormData((prev) => ({ ...prev, username: cleaned }));
+    }
+  };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F8F8F8] px-4">
@@ -141,30 +150,17 @@ const Auth = () => {
         <form onSubmit={handleSubmit}>
           {/* Name input for registration */}
           {mode === "register" && (
-            <div className="flex gap-4">
-              <div className="w-1/2">
-                <InputField
-                  label="First Name"
-                  id="firstName"
-                  name="firstName"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-              <div className="w-1/2">
-                <InputField
-                  label="Last Name"
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Last Name"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
+            <InputField
+              label="Username"
+              id="username"
+              name="username"
+              placeholder="Enter your username"
+              value={formData.username}
+              onChange={handleUsernameChange}
+              maxLength={15}
+              required
+            />
+
           )}
 
 

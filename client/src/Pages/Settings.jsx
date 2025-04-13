@@ -29,10 +29,8 @@ const Settings = () => {
 
 
   // Gets user name from localStorage (simulate user profile)
-  const storedFirst = localStorage.getItem("userName") || "Gary";
-  const [firstName, setFirstName] = useState(storedFirst);
-  const storedLast = localStorage.getItem("userLastName") || "";
-  const [lastName, setLastName] = useState(storedLast);
+  const storedUsername = localStorage.getItem("userName") || "Guest";
+  const [username, setUsername] = useState(storedUsername);
 
   const [savedMessage, setSavedMessage] = useState("");
 
@@ -51,13 +49,21 @@ const Settings = () => {
 
 
   const handleSaveName = () => {
-    login(firstName); // Temporary mock login update
-    localStorage.setItem("userName", firstName);
-    localStorage.setItem("userLastName", lastName);
-    setSavedMessage("Name saved!");
+    login(username);
+    localStorage.setItem("userName", username);
+    setSavedMessage("Username saved!");
     setTimeout(() => setSavedMessage(""), 3000);
-
   };
+
+  const handleUsernameChange = (e) => {
+    const raw = e.target.value;
+    const cleaned = raw.replace(/[^a-zA-Z0-9]/g, ""); // Remove anything that's not a-z, A-Z, 0-9
+    if (cleaned.length <= 15) {
+      setUsername(cleaned);
+    }
+  };
+
+
 
 
   return (
@@ -81,29 +87,17 @@ const Settings = () => {
             <h3 className="text-2xl font-bold text-[#1A3D61] mb-6">Account Info</h3>
             <div className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1A3D61] transition"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1A3D61] transition"
-                    />
-                  </div>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={handleUsernameChange}
+                  maxLength={15}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#1A3D61] transition"
+                />
 
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
@@ -113,6 +107,7 @@ const Settings = () => {
                   className="w-full px-4 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                 <button
@@ -121,8 +116,8 @@ const Settings = () => {
                 >
                   Reset Password
                 </button>
-
               </div>
+
               <button
                 onClick={handleSaveName}
                 className="bg-[#1A3D61] text-white px-5 py-2 rounded-md hover:bg-[#17405f] transition cursor-pointer"
@@ -133,9 +128,9 @@ const Settings = () => {
               {savedMessage && (
                 <p className="text-sm text-green-600 mt-2">{savedMessage}</p>
               )}
-
             </div>
           </section>
+
 
           {/* Vehicle Preferences */}
           <section id="vehicle" className="bg-white rounded-xl shadow p-8">
@@ -193,10 +188,10 @@ const Settings = () => {
           </section>
 
         </div>
-      </main>
+      </main >
 
       {/* Ticket Modal */}
-      <PolicyModal
+      < PolicyModal
         isOpen={showPrivacyModal}
         onClose={() => setShowPrivacyModal(false)}
         title="Privacy Policy"
@@ -211,7 +206,7 @@ const Settings = () => {
       />
 
       <TicketModal isOpen={showTicketModal} onClose={() => setShowTicketModal(false)} />
-    </div>
+    </div >
   );
 };
 
