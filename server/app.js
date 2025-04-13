@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 
 // Middleware
 const allowedOrigins = [
-  'http://localhost:8888',
+  'http://localhost:5173',
   'https://gesture-garage.onrender.com'
 ];
 
