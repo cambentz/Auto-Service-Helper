@@ -28,9 +28,9 @@ const Guides = () => {
   const [guides, setGuides] = useState([]);
   const bgRef = useRef(null);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    getGuides();
+  //   getGuides();
 
   //   axios.get(API_ENDPOINT + "/vehicles/makes")
   // .then(resp => {
