@@ -32,30 +32,30 @@ const Guides = () => {
 
     getGuides();
 
-    axios.get(API_ENDPOINT + "/vehicles/makes")
-  .then(resp => {
-    // Check if response data is an array before attempting to sort
-    if (Array.isArray(resp.data)) {
-      let data = [...resp.data].sort((a, b) => a.name > b.name ? 1 : -1);
+  //   axios.get(API_ENDPOINT + "/vehicles/makes")
+  // .then(resp => {
+  //   // Check if response data is an array before attempting to sort
+  //   if (Array.isArray(resp.data)) {
+  //     let data = [...resp.data].sort((a, b) => a.name > b.name ? 1 : -1);
       
-      // Make sure "All Makes" exists before trying to modify the array
-      let allMakes = data.find(make => make.id == 0);
-      if (allMakes) {
-        data.splice(data.indexOf(allMakes), 1);
-        data.unshift(allMakes);
-      }
+  //     // Make sure "All Makes" exists before trying to modify the array
+  //     let allMakes = data.find(make => make.id == 0);
+  //     if (allMakes) {
+  //       data.splice(data.indexOf(allMakes), 1);
+  //       data.unshift(allMakes);
+  //     }
       
-      setMakes(data);
-    } else {
-      // Handle non-array response
-      console.error('Expected array, received:', typeof resp.data, resp.data);
-      setMakes([]); // Set empty array as fallback
-    }
-  })
-  .catch(err => {
-    console.error('Error fetching makes:', err);
-    setMakes([]); // Set empty array as fallback
-  });
+  //     setMakes(data);
+  //   } else {
+  //     // Handle non-array response
+  //     console.error('Expected array, received:', typeof resp.data, resp.data);
+  //     setMakes([]); // Set empty array as fallback
+  //   }
+  // })
+  // .catch(err => {
+  //   console.error('Error fetching makes:', err);
+  //   setMakes([]); // Set empty array as fallback
+  // });
 
   // Similar parallax effect as in Home.jsx
   useEffect(() => {
