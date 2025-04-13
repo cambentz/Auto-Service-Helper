@@ -140,7 +140,7 @@ const Auth = () => {
         {/* Heading */}
         <h2 className="text-xl font-bold text-gray-900 mb-4 text-center">
           {mode === "login"
-            ? "Login to GestureGarage"
+            ? "Login to Gesture Garage"
             : mode === "register"
               ? "Create a New Account"
               : "Reset Your Password"}

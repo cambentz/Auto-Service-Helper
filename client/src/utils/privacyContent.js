@@ -3,7 +3,7 @@ Privacy Policy
 
 Effective Date: March 31, 2025
 
-GestureGarage ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect the personal information you provide when using our web application.
+Gesture Garage ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect the personal information you provide when using our web application.
 
 1. Information We Collect
 
@@ -35,7 +35,7 @@ Your information is securely stored and protected with modern encryption methods
 
 4. Cookies and Tracking
 
-GestureGarage may use cookies to improve usability and analyze usage trends. You can disable cookies through your browser settings.
+Gesture Garage may use cookies to improve usability and analyze usage trends. You can disable cookies through your browser settings.
 
 5. Your Rights
 

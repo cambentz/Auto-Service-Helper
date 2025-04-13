@@ -3,11 +3,11 @@ Terms of Service
 
 Effective Date: March 31, 2025
 
-Welcome to GestureGarage. By using our services, you agree to the following terms:
+Welcome to Gesture Garage. By using our services, you agree to the following terms:
 
 1. Use of Service
 
-GestureGarage provides vehicle repair guides and garage management tools for personal use only. Unauthorized commercial use is prohibited.
+Gesture Garage provides vehicle repair guides and garage management tools for personal use only. Unauthorized commercial use is prohibited.
 
 2. Account Responsibilities
 
@@ -15,7 +15,7 @@ You are responsible for maintaining the confidentiality of your login credential
 
 3. Service Features
 
-GestureGarage allows you to:
+Gesture Garage allows you to:
 
 Add and manage vehicle profiles
 
@@ -25,7 +25,7 @@ View support content and contact our team
 
 4. Guide Disclaimer
 
-Repair guides are for informational purposes only. GestureGarage is not responsible for any damage or injury resulting from their use. Always consult a professional when needed.
+Repair guides are for informational purposes only. Gesture Garage is not responsible for any damage or injury resulting from their use. Always consult a professional when needed.
 
 5. Modifications and Downtime
 
@@ -37,7 +37,7 @@ We reserve the right to terminate accounts that violate these terms or misuse th
 
 7. Limitation of Liability
 
-GestureGarage is not liable for any direct, indirect, or incidental damages resulting from your use of the app.
+Gesture Garage is not liable for any direct, indirect, or incidental damages resulting from your use of the app.
 
 8. Governing Law
 

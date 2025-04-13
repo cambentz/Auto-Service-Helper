@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { useLocation } from "react-router-dom";
 import UserDropdown from "./UserDropdown";
 import { useAuth } from "../utils/AuthContext";
+import logo from "../assets/logo.png";
+
 
 /**
  * Header component styled with custom color palette and animated mobile menu.
@@ -38,9 +40,11 @@ function Header() {
     <header className="sticky top-0 z-50 bg-[#F8F8F8] text-black shadow-md">
       <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="text-2xl font-bold text-[#1A3D61] tracking-tight">
-          Gesture Garage
-        </Link>
+        <Link to="/" className="flex items-center space-x-2">
+        <img src={logo} alt="Gesture Garage logo" className="h-8 w-8 rounded-full object-cover" />
+  <span className="text-2xl font-bold text-[#1A3D61] tracking-tight">Gesture Garage</span>
+</Link>
+
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6 font-medium">

@@ -7,7 +7,7 @@ const Sidebar = () => {
       {/* Logo + Title */}
       <div>
         <h2 className="text-2xl font-bold mb-6 flex items-center">
-          <span className="mr-2">🚗</span> GestureGarage
+          <span className="mr-2">🚗</span> Gesture Garage
         </h2>
 
         {/* Navigation Links */}
@@ -32,7 +32,7 @@ const Sidebar = () => {
 
       {/* Footer */}
       <div className="text-gray-400 text-sm mt-6">
-        <p>© 2025 GestureGarage</p>
+        <p>© 2025 Gesture Garage</p>
       </div>
     </aside>
   );

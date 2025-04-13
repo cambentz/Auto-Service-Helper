@@ -59,8 +59,8 @@ const Help = () => {
       answer: "Go to the login screen and click 'Forgot Password' to receive a reset link."
     },
     {
-      question: "Can I use GestureGarage on my phone?",
-      answer: "Yes, GestureGarage is fully optimized for mobile and tablet use."
+      question: "Can I use Gesture Garage on my phone?",
+      answer: "Yes, Gesture Garage is fully optimized for mobile and tablet use."
     }
   ];
 
@@ -159,7 +159,7 @@ const Help = () => {
           {/* Top 3 cards */}
           <Link to="/" className="bg-white border border-gray-200 rounded-xl p-6 text-center shadow hover:shadow-md transition w-full max-w-xs">
             <h3 className="text-xl font-semibold text-[#1A3D61] mb-2">Getting Started</h3>
-            <p className="text-gray-600 text-sm">Learn how to add vehicles and navigate GestureGarage.</p>
+            <p className="text-gray-600 text-sm">Learn how to add vehicles and navigate Gesture Garage.</p>
           </Link>
 
 
