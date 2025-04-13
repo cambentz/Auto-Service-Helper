@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, BrowserRouter } from "react-router-dom";
 import Layout from "./layouts/Layout";
 import Home from "./Pages/Home";
 import Garage from "./Pages/Garage";
@@ -15,6 +15,7 @@ import { AuthProvider } from "./utils/AuthContext";
 
 const App = () => {
   return (
+    <BrowserRouter basename="/">
     <Router>
       <AuthProvider>
         <Routes>
@@ -36,6 +37,7 @@ const App = () => {
         </Routes>
       </AuthProvider>
     </Router>
+    </BrowserRouter>
   );
 };
 
