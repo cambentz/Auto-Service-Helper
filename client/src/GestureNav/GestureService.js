@@ -21,11 +21,14 @@ class GestureService {
     this.lastVideoTime = -1;
     this.animationFrame = null;
     this.isInitialized = false;
+    this.isMobile = this.checkIfMobile();
+    this.isWebcamStarted = false;
+    this.isInitializing = false;
     
     // Gesture detection settings
     this.lastGestureTimestamp = 0;
-    this.gestureCooldown = 2000; // 2 seconds cooldown
-    this.confidenceThreshold = 0.6; // 60% confidence threshold
+    this.gestureCooldown = this.isMobile ? 1200 : 2000; // Shorter cooldown on mobile
+    this.confidenceThreshold = this.isMobile ? 0.45 : 0.6; // Lower threshold for mobile
     
     // Callbacks
     this.onGestureDetected = null; // Callback for navigation
@@ -34,44 +37,147 @@ class GestureService {
     // Bind methods to preserve 'this' context
     this.predictWebcam = this.predictWebcam.bind(this);
     this.handleVisibilityChange = this.handleVisibilityChange.bind(this);
+    this.handlePageHidden = this.handlePageHidden.bind(this);
+    this.handleOrientationChange = this.handleOrientationChange.bind(this);
+    
+    console.log("GestureService created, mobile device:", this.isMobile);
   }
-
+  
+  /**
+   * Check if running on a mobile device
+   */
+  checkIfMobile() {
+    // Check if we have touch capabilities
+    const hasTouchScreen = (
+      'ontouchstart' in window || 
+      navigator.maxTouchPoints > 0
+    );
+    
+    // Check user agent for mobile devices
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    
+    // Check screen size
+    const isSmallScreen = window.innerWidth < 768;
+    
+    // To avoid false positives, require both touch capability AND either a mobile user agent OR small screen
+    const isMobile = hasTouchScreen && (isMobileUserAgent || isSmallScreen);
+    
+    // Log the detection results for debugging
+    console.log("Mobile detection:", {
+      hasTouchScreen,
+      isMobileUserAgent,
+      isSmallScreen,
+      isMobile
+    });
+    
+    return isMobile;
+  }
+  setMobileMode(isMobile) {
+    const mobileMode = !!isMobile; // Convert to boolean
+    
+    // Only update if it's actually changing
+    if (this.isMobile !== mobileMode) {
+      this.isMobile = mobileMode;
+      console.log(`Mobile mode ${this.isMobile ? 'enabled' : 'disabled'}`);
+      
+      // Update settings based on mobile status
+      this.gestureCooldown = this.isMobile ? 1200 : 2000;
+      this.confidenceThreshold = this.isMobile ? 0.45 : 0.6;
+      
+      // Additional mobile-specific settings
+      if (this.isMobile) {
+        // Lower resolution for better performance on mobile
+        this.preferredVideoConstraints = {
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          facingMode: "user",
+          frameRate: { ideal: 15 }
+        };
+      } else {
+        // Higher quality for desktop
+        this.preferredVideoConstraints = {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          facingMode: "user",
+          frameRate: { ideal: 30 }
+        };
+      }
+    }
+    
+    return this.isMobile;
+  }
   /**
    * Initialize the gesture service with required elements and callbacks
    */
   async initialize(videoElement, canvasElement, onGestureCallback, onGestureUpdate) {
-    if (!videoElement || !canvasElement) {
-      console.error("Video and canvas elements are required");
+    // Prevent concurrent initialization
+    if (this.isInitializing) {
+      console.log("Already initializing, please wait");
       return false;
     }
-
-    // Set up references
-    this.video = videoElement;
-    this.canvas = canvasElement;
-    this.canvasCtx = this.canvas.getContext("2d");
-    this.onGestureDetected = onGestureCallback || this.defaultGestureCallback;
-    this.onGestureUpdate = onGestureUpdate;
-
-    // Initialize MediaPipe
+    
+    this.isInitializing = true;
+    
     try {
-      console.log("Loading MediaPipe vision tasks...");
-      const vision = await FilesetResolver.forVisionTasks(
-        "/node_modules/@mediapipe/tasks-vision/wasm"
-      );
+      if (!videoElement) {
+        console.error("Video element is required but not provided");
+        return false;
+      }
       
-      this.gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: "/models/gesture_recognizer.task",
-          delegate: "CPU"
-        },
-        runningMode: this.runningMode
-      });
+      if (!canvasElement) {
+        console.error("Canvas element is required but not provided");
+        return false;
+      }
 
-      this.isInitialized = true;
-      console.log("GestureRecognizer initialized successfully");
-      return true;
+      // Set up references
+      this.video = videoElement;
+      this.canvas = canvasElement;
+      this.canvasCtx = this.canvas.getContext("2d");
+      this.onGestureDetected = onGestureCallback || this.defaultGestureCallback;
+      this.onGestureUpdate = onGestureUpdate;
+
+      // Check for device camera capabilities
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error("This browser does not support camera access");
+        this.isInitializing = false;
+        return false;
+      }
+
+      // Initialize MediaPipe
+      try {
+        console.log("Loading MediaPipe vision tasks...");
+        console.log("Running on mobile device:", this.isMobile);
+        
+        // Load the MediaPipe wasm modules
+        const vision = await FilesetResolver.forVisionTasks(
+          "/mediapipe/wasm"
+        );
+        
+        // Create the gesture recognizer with appropriate options
+        this.gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath: "/models/gesture_recognizer.task",
+            delegate: "CPU" // GPU doesn't work well on some mobile devices
+          },
+          runningMode: this.runningMode,
+          numHands: 1, // Limit to 1 hand for better performance, especially on mobile
+          minHandDetectionConfidence: this.isMobile ? 0.5 : 0.6,
+          minHandPresenceConfidence: this.isMobile ? 0.5 : 0.6,
+          minTrackingConfidence: this.isMobile ? 0.5 : 0.6
+        });
+
+        this.isInitialized = true;
+        console.log("GestureRecognizer initialized successfully");
+        this.isInitializing = false;
+        return true;
+      } catch (error) {
+        console.error("Error initializing GestureRecognizer:", error);
+        this.isInitializing = false;
+        return false;
+      }
     } catch (error) {
-      console.error("Error initializing GestureRecognizer:", error);
+      console.error("Error during initialization:", error);
+      this.isInitializing = false;
       return false;
     }
   }
@@ -91,39 +197,75 @@ class GestureService {
       console.warn("GestureRecognizer not initialized");
       return false;
     }
+    
+    if (this.isWebcamStarted) {
+      console.log("Webcam already running");
+      return true;
+    }
 
     try {
-      // Request camera access
-      const constraints = { video: true };
+      console.log("Starting webcam...");
+      // Request camera access with appropriate constraints for mobile
+      const constraints = {
+        video: {
+          facingMode: "user", // Use front camera for mobile
+          width: { ideal: this.isMobile ? 640 : 1280 },
+          height: { ideal: this.isMobile ? 480 : 720 },
+          frameRate: { ideal: this.isMobile ? 15 : 30 } // Lower frameRate for mobile
+        }
+      };
+      
+      // Get the media stream
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       // Set up video stream
       this.video.srcObject = stream;
       this.webcamRunning = true;
+      this.isWebcamStarted = true;
+      console.log("Camera stream obtained successfully");
 
       // Remove any existing loadeddata listeners to prevent duplicates
       this.video.removeEventListener("loadeddata", this.startDetection);
       
-      // Add new loadeddata listener
-      this.video.addEventListener("loadeddata", () => {
-        // Set canvas dimensions to match video
-        this.canvas.width = this.video.videoWidth;
-        this.canvas.height = this.video.videoHeight;
+      // Use a Promise to ensure video is properly loaded
+      await new Promise((resolve) => {
+        const videoLoaded = () => {
+          this.video.removeEventListener("loadeddata", videoLoaded);
+          console.log("Video data loaded, setting up canvas");
+          
+          // Set canvas dimensions to match video
+          this.canvas.width = this.video.videoWidth;
+          this.canvas.height = this.video.videoHeight;
+          
+          console.log(`Video dimensions: ${this.video.videoWidth}x${this.video.videoHeight}`);
+          resolve();
+        };
         
-        // Reset state
-        this.lastVideoTime = -1;
-        this.lastGestureTimestamp = 0;
-        
-        // Add visibility change listener
-        document.addEventListener('visibilitychange', this.handleVisibilityChange);
-        
-        // Start prediction loop
-        this.predictWebcam();
+        if (this.video.readyState >= 2) {
+          // Video is already loaded
+          videoLoaded();
+        } else {
+          // Wait for video to load
+          this.video.addEventListener("loadeddata", videoLoaded);
+        }
       });
+      
+      // Reset state
+      this.lastVideoTime = -1;
+      this.lastGestureTimestamp = 0;
+      
+      // Add event listeners for mobile-specific events
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+      document.addEventListener('pagehide', this.handlePageHidden);
+      window.addEventListener('orientationchange', this.handleOrientationChange);
+      
+      // Start prediction loop
+      this.animationFrame = requestAnimationFrame(this.predictWebcam);
       
       return true;
     } catch (error) {
       console.error("Error starting webcam:", error);
+      this.isWebcamStarted = false;
       return false;
     }
   }
@@ -132,10 +274,14 @@ class GestureService {
    * Stop the webcam and gesture detection
    */
   stopWebcam() {
+    console.log("Stopping webcam");
     this.webcamRunning = false;
+    this.isWebcamStarted = false;
     
     // Remove event listeners
     document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    document.removeEventListener('pagehide', this.handlePageHidden);
+    window.removeEventListener('orientationchange', this.handleOrientationChange);
     
     // Cancel animation frame
     if (this.animationFrame) {
@@ -146,7 +292,13 @@ class GestureService {
     // Stop all video tracks
     if (this.video && this.video.srcObject) {
       const tracks = this.video.srcObject.getTracks();
-      tracks.forEach(track => track.stop());
+      tracks.forEach(track => {
+        try {
+          track.stop();
+        } catch (e) {
+          console.warn("Error stopping track:", e);
+        }
+      });
       this.video.srcObject = null;
     }
   }
@@ -165,9 +317,41 @@ class GestureService {
       // Resume when tab is visible again
       if (this.webcamRunning && !this.animationFrame) {
         this.lastVideoTime = -1;
-        this.predictWebcam();
+        this.animationFrame = requestAnimationFrame(this.predictWebcam);
       }
     }
+  }
+  
+  /**
+   * Handle page hidden event (mobile browsers)
+   */
+  handlePageHidden() {
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+  }
+  
+  /**
+   * Handle device orientation change
+   */
+  handleOrientationChange() {
+    // Give time for orientation change to complete
+    setTimeout(() => {
+      if (this.webcamRunning && this.video) {
+        // Update canvas dimensions
+        this.canvas.width = this.video.videoWidth;
+        this.canvas.height = this.video.videoHeight;
+        
+        // Reset prediction loop
+        this.lastVideoTime = -1;
+        
+        // Restart prediction if needed
+        if (!this.animationFrame) {
+          this.animationFrame = requestAnimationFrame(this.predictWebcam);
+        }
+      }
+    }, 500);
   }
 
   /**
@@ -186,7 +370,7 @@ class GestureService {
       this.lastVideoTime = -1;
       
       // Start the prediction loop again
-      this.predictWebcam();
+      this.animationFrame = requestAnimationFrame(this.predictWebcam);
       return true;
     }
     
@@ -205,7 +389,7 @@ class GestureService {
    */
   predictWebcam() {
     // Exit if webcam is no longer running or elements are missing
-    if (!this.webcamRunning || !this.video || !this.canvas) {
+    if (!this.webcamRunning || !this.video || !this.canvas || !this.gestureRecognizer) {
       console.log("Webcam stopped or elements missing, exiting prediction loop");
       return;
     }
@@ -251,29 +435,37 @@ class GestureService {
         this.canvasCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Draw hand landmarks
-        if (results.landmarks) {
+        if (results.landmarks && results.landmarks.length > 0) {
           const drawingUtils = new DrawingUtils(this.canvasCtx);
           
           for (const landmarks of results.landmarks) {
+            // Use different colors for mobile vs desktop for better visibility
+            const connectorColor = this.isMobile ? "#00FF00" : "#00FF00";
+            const landmarkColor = this.isMobile ? "#FF0000" : "#FF0000";
+            const lineWidth = this.isMobile ? 3 : 5; // Thinner lines on mobile
+            const pointSize = this.isMobile ? 1 : 2; // Smaller points on mobile
+            
             drawingUtils.drawConnectors(
               landmarks,
               GestureRecognizer.HAND_CONNECTIONS,
-              { color: "#00FF00", lineWidth: 5 }
+              { color: connectorColor, lineWidth: lineWidth }
             );
             
             drawingUtils.drawLandmarks(landmarks, {
-              color: "#FF0000",
-              lineWidth: 2
+              color: landmarkColor,
+              lineWidth: pointSize,
+              radius: this.isMobile ? 3 : 5 // Smaller landmarks on mobile
             });
           }
         }
         this.canvasCtx.restore();
         
         // Process gestures if any were detected
-        if (results.gestures.length > 0) {
+        if (results.gestures && results.gestures.length > 0) {
           const gesture = results.gestures[0][0].categoryName;
           const confidence = results.gestures[0][0].score;
-          const handedness = results.handednesses[0][0].displayName;
+          const handedness = results.handednesses && results.handednesses[0] ? 
+                             results.handednesses[0][0].displayName : "Unknown";
           
           // Always update UI
           if (this.onGestureUpdate) {
@@ -285,8 +477,10 @@ class GestureService {
           const cooldownElapsed = timeSinceLastGesture >= this.gestureCooldown;
           const confidenceOk = confidence >= this.confidenceThreshold;
           
-          // Debug logging
-          console.log(`Gesture: ${gesture}, Confidence: ${confidence.toFixed(2)}, Cooldown: ${cooldownElapsed ? "Ready" : `${timeSinceLastGesture}ms/${this.gestureCooldown}ms`}`);
+          // Debug logging but limit frequency on mobile
+          if (!this.isMobile || nowInMs % 1000 < 100) {
+            console.log(`Gesture: ${gesture}, Confidence: ${confidence.toFixed(2)}, Cooldown: ${cooldownElapsed ? "Ready" : `${timeSinceLastGesture}ms/${this.gestureCooldown}ms`}`);
+          }
           
           // Trigger action if cooldown elapsed and confidence is high enough
           if (cooldownElapsed && confidenceOk) {
@@ -311,8 +505,16 @@ class GestureService {
       }
     }
 
-    // Schedule next frame
-    this.animationFrame = requestAnimationFrame(this.predictWebcam);
+    // Schedule next frame with more conservative timing on mobile
+    // This helps reduce CPU/battery usage
+    if (this.isMobile) {
+      // On mobile, we use a slower frame rate
+      setTimeout(() => {
+        this.animationFrame = requestAnimationFrame(this.predictWebcam);
+      }, 60); // ~16fps instead of 60fps
+    } else {
+      this.animationFrame = requestAnimationFrame(this.predictWebcam);
+    }
   }
 }
 

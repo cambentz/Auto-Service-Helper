@@ -9,7 +9,18 @@ export default defineConfig({
     tailwindcss()
   ],
   define: {
-      //API_ENDPOINT: JSON.stringify("http://127.0.0.1:3000/api"),
-      API_ENDPOINT: JSON.stringify("https://gesture-garage-api.onrender.com/api")
+    // Use a relative API path instead of absolute URL
+    API_ENDPOINT: JSON.stringify("/api")
+  },
+  server: {
+    // Add proxy configuration
+    proxy: {
+      '/api': {
+        target: 'https://gesture-garage-api.onrender.com',
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      }
+    }
   }
 })
