@@ -1,58 +1,42 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import authRoutes from "./routes/authRoutes.js";
-import guideRoutes from "./routes/guideRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import garageRoutes from "./routes/garageRoutes.js";
-import vehicleRoutes from "./routes/vehicleRoutes.js";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Layout from "./layouts/Layout";
+import Home from "./Pages/Home";
+import Garage from "./Pages/Garage";
+import Guides from "./Pages/Guides";
+import GuidePage from "./Pages/GuidePage";
+import Help from "./Pages/Help";
+import Auth from "./Pages/Auth";
+import Settings from "./Pages/Settings";
+import ResetPassword from './Pages/ResetPassword';
+import AddVehiclePage from "./Pages/AddVehiclePage";
+import ErrorPage from "./Pages/ErrorPage";
+import { AuthProvider } from "./utils/AuthContext";
 
-dotenv.config();
+const App = () => {
+  return (
+    <Router>
+      <AuthProvider>
+        <Routes>
+          {/* Parent route with layout */}
+          <Route path="/" element={<Layout />}>
+            {/* Nested routes */}
+            <Route index element={<Home />} />
+            <Route path="garage" element={<Garage />} />
+            <Route path="guides" element={<Guides />} />
+            <Route path="guides/:guideId" element={<GuidePage />} />
+            <Route path="help" element={<Help />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/reset" element={<Auth />} />
+            <Route path="reset-password" element={<ResetPassword />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="/add-vehicle" element={<AddVehiclePage />} />
+            <Route path="*" element={<ErrorPage />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </Router>
+  );
+};
 
-const app = express();
-
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.originalUrl}`);
-  next();
-});
-
-// Middleware
-const allowedOrigins = [
-  'http://localhost:5173',
-  'https://gesture-garage.onrender.com'
-];
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/guides", guideRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/garage", garageRoutes);
-app.use("/api/vehicles", vehicleRoutes);
-
-// Health check + default root route
-app.get("/health", (req, res) => {
-  res
-    .status(200)
-    .json({ status: "ok", message: "Gesture Garage API is running" });
-});
-
-app.get("/", (req, res) => {
-  res.send("Welcome to the Gesture Garage API!");
-});
-
-export default app;
+export default App;
