@@ -15,7 +15,6 @@ import { AuthProvider } from "./utils/AuthContext";
 
 const App = () => {
   return (
-    <Router>
       <AuthProvider>
         <Routes>
           {/* Parent route with layout */}
@@ -35,7 +34,6 @@ const App = () => {
           </Route>
         </Routes>
       </AuthProvider>
-    </Router>
   );
 };
 
