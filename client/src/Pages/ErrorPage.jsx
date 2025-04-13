@@ -6,7 +6,6 @@ const ErrorPage = () => {
   return (
     <div className="min-h-screen bg-[#F8F8F8] flex flex-col items-center justify-center text-center px-6">
       <div className="bg-white p-10 rounded-2xl shadow-xl max-w-md w-full">
-        {/* Optional: you can swap this with a repair icon later */}
         <div className="text-7xl mb-4 text-[#1A3D61]">🔧</div>
 
         <h1 className="text-3xl font-extrabold text-[#1A3D61] mb-2">

@@ -59,15 +59,15 @@ const Help = () => {
       answer: "Go to the login screen and click 'Forgot Password' to receive a reset link."
     },
     {
-      question: "Can I use GestureGarage on my phone?",
-      answer: "Yes, GestureGarage is fully optimized for mobile and tablet use."
+      question: "Can I use Gesture Garage on my phone?",
+      answer: "Yes, Gesture Garage is fully optimized for mobile and tablet use."
     }
   ];
 
   const [hasSearched, setHasSearched] = useState(false);
   const [showTicketModal, setShowTicketModal] = useState(false);
-  const [searchQuery, setSearchQuery] = useState(""); // actual query used for searching
-  const [inputValue, setInputValue] = useState(""); // user typing
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
   const firstMatchRef = useRef(null);
   const noResultsRef = useRef(null);
   const location = useLocation();
@@ -79,7 +79,6 @@ const Help = () => {
       setHasSearched(false);
       firstMatchRef.current = null;
 
-      // Clean up the navigation state after resetting
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -126,11 +125,11 @@ const Help = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setSearchQuery(inputValue);  // trigger actual search
-              setHasSearched(true);        // trigger scroll + highlight
+              setSearchQuery(inputValue); 
+              setHasSearched(true);       
             }}
 
-            className="flex flex-col sm:flex-row justify-center items-center gap-4"
+            className="flex flex-row flex-wrap justify-center items-center gap-2 sm:gap-4"
           >
             <input
               type="text"
@@ -153,14 +152,14 @@ const Help = () => {
       </section>
 
       {/* Help Topics */}
-      <section className="max-w-6xl mx-auto px-6 py-16">
+      <section className="max-w-6xl mx-auto px-6 py-12 sm:py-16">
         <h2 className="text-2xl font-bold text-[#1A3D61] mb-8">Browse Topics</h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
           {/* Top 3 cards */}
           <Link to="/" className="bg-white border border-gray-200 rounded-xl p-6 text-center shadow hover:shadow-md transition w-full max-w-xs">
             <h3 className="text-xl font-semibold text-[#1A3D61] mb-2">Getting Started</h3>
-            <p className="text-gray-600 text-sm">Learn how to add vehicles and navigate GestureGarage.</p>
+            <p className="text-gray-600 text-sm">Learn how to add vehicles and navigate Gesture Garage.</p>
           </Link>
 
 

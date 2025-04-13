@@ -15,12 +15,13 @@ export const AuthProvider = ({ children }) => {
 
   // Simulated login — just stores name and a flag locally
   // Backend devs: Replace with real auth token + user profile from API
-  const login = (firstNameInput) => {
-    const first = firstNameInput || localStorage.getItem("userName") || "Gary";
-    setUser({ name: first });
-    localStorage.setItem("userName", first);
+  const login = (usernameInput) => {
+    const username = usernameInput || localStorage.getItem("userName") || "Guest";
+    setUser({ name: username });
+    localStorage.setItem("userName", username);
     localStorage.setItem("userLoggedIn", "true");
   };
+  
 
   // Simulated logout — clears login flag but keeps name for demo continuity
   // Backend devs: Clear auth token here

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import placeholderImg from '../assets/car.png';
 
 /**
  * Garage page shows all vehicles stored by the user.
@@ -45,7 +46,7 @@ const Garage = () => {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8 text-[#1A3D61]">Your Garage</h1>
 
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {/* Add Vehicle Card */}
           <Link to="/add-vehicle" className="block">
             <div className="border-2 border-dashed border-[#1A3D61] rounded-xl p-6 flex items-center justify-center text-center hover:bg-[#e7eff7] transition cursor-pointer h-full min-h-[200px]">
@@ -65,25 +66,34 @@ const Garage = () => {
               {/* Delete Button */}
               <button
                 onClick={() => handleDelete(index)}
-                className="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl cursor-pointer"
+                className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-base leading-none cursor-pointer"
                 aria-label="Delete Vehicle"
                 title="Delete Vehicle"
               >
-                &times;
+                ×
               </button>
 
+
               {/* Placeholder image */}
-              <div className="w-full h-40 bg-gray-100 border border-gray-200 rounded mb-4 flex items-center justify-center text-gray-400 text-sm italic">
-                No Image
+              <div className="w-full h-40 mb-4 flex items-center justify-center overflow-hidden rounded border border-gray-200 bg-gray-100">
+                <img
+                  src={placeholderImg}
+                  alt="Placeholder vehicle"
+                  className="object-cover h-full w-full"
+
+                />
               </div>
+
 
               {/* Vehicle Info */}
               <h2 className="text-lg sm:text-xl font-semibold text-[#1A3D61] mb-1">
                 {vehicle.year} {vehicle.make} {vehicle.model}
               </h2>
 
-              {vehicle.nickname && (
+              {vehicle.nickname ? (
                 <p className="text-sm text-gray-500 italic mb-2">“{vehicle.nickname}”</p>
+              ) : (
+                <div className="mb-2 invisible text-sm">placeholder</div>
               )}
 
               {vehicle.mileage && (
