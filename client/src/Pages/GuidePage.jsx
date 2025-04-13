@@ -8,7 +8,7 @@ import GestureControl from "../GestureNav/GestureControl";
 import axios from "axios";
 
 
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT
+const API_ENDPOINT = import.meta.env.VITE_API_URL
 
 const GuidePage = () => {
   const navigate = useNavigate();

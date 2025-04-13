@@ -4,7 +4,7 @@ import guidesBackground from "../assets/heroBackground.png"; // Reusing the same
 import { Link } from "react-router-dom";
 import axios from 'axios';
 
-const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT
+const API_ENDPOINT = import.meta.env.VITE_API_URL
 // Reusing the FadeInOnView component from Home.jsx
 const FadeInOnView = ({ children, delay = 0 }) => {
   const ref = useRef(null);
