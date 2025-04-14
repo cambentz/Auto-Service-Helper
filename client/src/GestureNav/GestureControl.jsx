@@ -204,64 +204,64 @@ const GestureControl = ({
   // Don't render anything if gestures are disabled
   if (!isEnabled) return null;
   
-  // Determine panel class based on mobile status
-  const panelClass = isMobile 
-    ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
-      (minimized ? " w-12 h-12" : " w-56")
-    : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
+  // // Determine panel class based on mobile status
+  // const panelClass = isMobile 
+  //   ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
+  //     (minimized ? " w-12 h-12" : " w-56")
+  //   : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
   
-  // Render minimized view for mobile if minimized
-  if (isMobile && minimized) {
-    return (
-      <div className={panelClass}>
-        {/* Keep video and canvas in DOM but visually hidden */}
-        <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', width: '1px', height: '1px', overflow: 'hidden', left: '-9999px' }}>
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            width="640"
-            height="480"
-          ></video>
-          <canvas
-            ref={canvasRef}
-            width="640"
-            height="480"
-          ></canvas>
-        </div>
+  // // Render minimized view for mobile if minimized
+  // if (isMobile && minimized) {
+  //   return (
+  //     <div className={panelClass}>
+  //       {/* Keep video and canvas in DOM but visually hidden */}
+  //       <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', width: '1px', height: '1px', overflow: 'hidden', left: '-9999px' }}>
+  //         <video
+  //           ref={videoRef}
+  //           autoPlay
+  //           playsInline
+  //           muted
+  //           width="640"
+  //           height="480"
+  //         ></video>
+  //         <canvas
+  //           ref={canvasRef}
+  //           width="640"
+  //           height="480"
+  //         ></canvas>
+  //       </div>
   
-        {/* <button
-          onClick={toggleMinimized}
-          className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
-          aria-label="Expand Gesture Controls"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
-          </svg>
-        </button> */}
-      </div>
-    );
-  }
+  //       {/* <button
+  //         onClick={toggleMinimized}
+  //         className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
+  //         aria-label="Expand Gesture Controls"
+  //       >
+  //         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
+  //         </svg>
+  //       </button> */}
+  //     </div>
+  //   );
+  // }
   
-  // Full view
-  return (
-    <div className={panelClass + " transition-all duration-300"}>
-      {/* Header with minimize button for mobile */}
-      {isMobile && initialized && (
-        <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
-          <span className="text-sm font-medium">Gesture Controls</span>
-          <button
-            onClick={toggleMinimized}
-            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
-            aria-label="Minimize Gesture Controls"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
-      )}
+  // // Full view
+  // return (
+  //   <div className={panelClass + " transition-all duration-300"}>
+  //     {/* Header with minimize button for mobile */}
+  //     {isMobile && initialized && (
+  //       <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
+  //         <span className="text-sm font-medium">Gesture Controls</span>
+  //         <button
+  //           onClick={toggleMinimized}
+  //           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
+  //           aria-label="Minimize Gesture Controls"
+  //         >
+  //           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  //             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  //           </svg>
+  //         </button>
+  //       </div>
+  //     )}
       
       {/* Video and canvas container */}
       <div className="relative w-full bg-gray-900 overflow-hidden" style={{ height: '160px' }}>
