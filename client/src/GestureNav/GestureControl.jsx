@@ -6,6 +6,8 @@ const GestureControl = ({
   onToggle,
   onGestureDetected,
   instructions = [] // Array of gesture instructions to display
+  isMobile = false,  // Added prop for mobile detection
+  forceMobile = null // Added prop to explicitly override detection
 }) => {
   // Refs for video and canvas elements
   const videoRef = useRef(null);
@@ -15,6 +17,7 @@ const GestureControl = ({
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
   
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
@@ -74,6 +77,11 @@ const GestureControl = ({
     }
   };
   
+  // Toggle minimized state
+  const toggleMinimized = () => {
+    setMinimized(prev => !prev);
+  };
+
   // Initialize gesture service when enabled
   useEffect(() => {
     let errorCheckTimeout;
@@ -128,7 +136,7 @@ const GestureControl = ({
         gestureService.stopWebcam();
       }
     };
-  }, [isEnabled, initialized]);
+  }, [isEnabled, initialized, isMobile, forceMobile]);
   
   // Monitor video element for errors
   useEffect(() => {
@@ -160,16 +168,56 @@ const GestureControl = ({
   // Don't render anything if gestures are disabled
   if (!isEnabled) return null;
   
+
+    // Determine panel class based on mobile status
+    const panelClass = isMobile 
+    ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
+      (minimized ? " w-12 h-12" : " w-56")
+    : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
+
+     
+  // Render minimized view for mobile if minimized
+  if (isMobile && minimized) {
+    return (
+      <div className={panelClass}>
+        <button 
+          onClick={toggleMinimized}
+          className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
+          aria-label="Expand Gesture Controls"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
+          </svg>
+        </button>
+      </div>
+    );
+  } 
   return (
-    <div className="gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden">
+    <div className={panelClass + " transition-all duration-300"}>
+      {/* Header with minimize button for mobile */}
+      {isMobile && (
+        <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
+          <span className="text-sm font-medium">Gesture Controls</span>
+          <button 
+            onClick={toggleMinimized}
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
+            aria-label="Minimize Gesture Controls"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      )}
+      
       {/* Video and canvas container */}
-      <div className="relative w-64 bg-gray-900 overflow-hidden">
+      <div className="relative w-full bg-gray-900 overflow-hidden" style={{ height: '160px' }}>
         <video 
           ref={videoRef}
           autoPlay
           playsInline
           muted
-          className="w-full"
+          className="w-full h-full object-cover"
         ></video>
         <canvas 
           ref={canvasRef}
@@ -180,6 +228,7 @@ const GestureControl = ({
         {hasError && (
           <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col items-center justify-center text-white p-4">
             <p className="text-red-400 mb-2">Camera error</p>
+            <p className="text-xs mb-3 text-center">Make sure camera permissions are granted</p>
             <button 
               onClick={resetWebcam}
               className="px-3 py-1 bg-blue-500 text-white rounded text-sm"
@@ -221,7 +270,9 @@ const GestureControl = ({
       
       {/* Instructions */}
       <div className="bg-white p-3 text-sm">
-        <h4 className="font-bold text-[#1A3D61] mb-2 text-center">Gesture Controls</h4>
+        {!isMobile && (
+          <h4 className="font-bold text-[#1A3D61] mb-2 text-center">Gesture Controls</h4>
+        )}
         <div className="grid grid-cols-2 gap-2">
           {displayInstructions.map((instruction, index) => (
             <div key={index} className="text-center border border-gray-100 rounded p-1">
