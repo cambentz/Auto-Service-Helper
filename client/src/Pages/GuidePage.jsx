@@ -25,8 +25,9 @@ const GuidePage = () => {
   const [direction, setDirection] = useState(0); // -1 for prev, 1 for next
   const [gesturesEnabled, setGesturesEnabled] = useState(false);
   const [navigationCooldown, setNavigationCooldown] = useState(false);
+  const [showGestureHelp, setShowGestureHelp] = useState(false);
 
-  
+
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState("unknown");
   const [requestingCamera, setRequestingCamera] = useState(false);
 
@@ -126,7 +127,7 @@ const GuidePage = () => {
     currentStepRef.current = currentStep;
     console.log("currentStep updated to:", currentStep + 1);
   }, [currentStep]);
-  
+
   // Navigation functions with useCallback for better performance
   const goToNextStep = useCallback(() => {
     if (currentStepRef.current < steps.length - 1 && !isTransitioning && !navigationCooldown) {
@@ -283,7 +284,7 @@ const GuidePage = () => {
       setRequestingCamera(false);
     }
   }, [gesturesEnabled, requestingCamera]);
- 
+
   return (
     steps.length > 0 ?
       <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
@@ -343,11 +344,6 @@ const GuidePage = () => {
                 {!isMobile && "Back to Guides"}
               </Link>
               <div className="flex gap-2">
-                {!isMobile && (
-                  <button className="px-3 py-1 text-sm bg-[#1A3D61] text-white hover:bg-[#17405f] rounded-lg transition font-medium cursor-pointer">
-                    Print Guide
-                  </button>
-                )}
                 <button
                   className={`px-3 py-1 text-sm cursor-pointer ${gesturesEnabled
                     ? "bg-red-600 text-white hover:bg-red-700"
@@ -358,21 +354,25 @@ const GuidePage = () => {
                   {isMobile ? (gesturesEnabled ? "👋 Off" : "👋 On") : (gesturesEnabled ? "Disable Gestures" : "Enable Gestures")}
                 </button>
 
-                
+                {/* Show “How?” button only on mobile when gestures are enabled */}
+                {isMobile && (
+                  <button
+                    onClick={() => setShowGestureHelp(true)}
+                    className="text-sm underline text-[#1A3D61] hover:text-[#17405f]"
+                  >
+                    How?
+                  </button>
+                )}
               </div>
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Step Progress Bar */}
-        <section className="bg-white border-b border-gray-200 sticky top-[57px] z-10">
+        < section className="bg-white border-b border-gray-200 sticky top-[57px] z-10" >
+
           <div className="max-w-4xl mx-auto px-6 py-4">
             <div className="flex justify-between items-center mb-2">
-              {/*
-            <h2 className="text-lg font-bold text-[#1A3D61]">
-              {`Step ${currentStep + 1}`}
-            </h2>
-            */}
               <div className="text-sm text-gray-600">
                 Step {currentStep + 1} of {steps.length}
               </div>
@@ -384,10 +384,10 @@ const GuidePage = () => {
               ></div>
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Guide Content with Side Navigation Arrows and inline gesture control */}
-        <section className="w-full py-12 px-6 sm:px-12 bg-white min-h-[60vh] relative">
+        < section className="w-full py-12 px-6 sm:px-12 bg-white min-h-[60vh] relative" >
           <div className="max-w-4xl mx-auto relative">
             {/* Left arrow - fixed on the side */}
             {!isMobile && currentStep > 0 && (
@@ -489,8 +489,8 @@ const GuidePage = () => {
                       onClick={goToPrevStep}
                       disabled={currentStep === 0 || isTransitioning || navigationCooldown}
                       className={`px-6 py-3 rounded-lg transition font-semibold ${currentStep === 0
-                          ? "bg-gray-100 text-gray-400"
-                          : "bg-gray-200 text-[#1A3D61] active:bg-gray-300"
+                        ? "bg-gray-100 text-gray-400"
+                        : "bg-gray-200 text-[#1A3D61] active:bg-gray-300"
                         }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -521,8 +521,8 @@ const GuidePage = () => {
                       onClick={goToNextStep}
                       disabled={currentStep === steps.length - 1 || isTransitioning || navigationCooldown}
                       className={`px-6 py-3 rounded-lg transition font-semibold ${currentStep === steps.length - 1
-                          ? "bg-gray-100 text-gray-400"
-                          : "bg-[#1A3D61] text-white active:bg-[#17405f]"
+                        ? "bg-gray-100 text-gray-400"
+                        : "bg-[#1A3D61] text-white active:bg-[#17405f]"
                         }`}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -533,7 +533,7 @@ const GuidePage = () => {
                 </div>
               )}
 
-          
+
 
               <AnimatePresence mode="wait">
                 <motion.div
@@ -590,50 +590,57 @@ const GuidePage = () => {
               </AnimatePresence>
             </div>
           </div>
-        </section>
-
-        {/* Touch navigation hints for mobile */}
-        {isMobile && (
-          <div className="fixed top-1/2 left-0 right-0 transform -translate-y-1/2 z-0 flex justify-between px-2 pointer-events-none text-gray-300 opacity-40">
-            <div className={`p-4 ${currentStep === 0 ? 'invisible' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </div>
-            <div className={`p-4 ${currentStep === steps.length - 1 ? 'invisible' : ''}`}>
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </div>
-        )}
+        </section >
 
         {/* Camera permissions modal if needed */}
-        {cameraPermissionStatus === "denied" && gesturesEnabled && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 max-w-sm">
-              <h3 className="text-lg font-bold text-[#1A3D61] mb-3">Camera Access Required</h3>
-              <p className="mb-4">
-                Gesture controls need camera access to work. Please enable camera access in your browser settings.
-              </p>
-              <div className="flex justify-end gap-3">
+        {
+          cameraPermissionStatus === "denied" && gesturesEnabled && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-lg p-6 max-w-sm">
+                <h3 className="text-lg font-bold text-[#1A3D61] mb-3">Camera Access Required</h3>
+                <p className="mb-4">
+                  Gesture controls need camera access to work. Please enable camera access in your browser settings.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setGesturesEnabled(false)}
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-[#1A3D61] text-white rounded-lg"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
+        }
+        {/* Gesture Help Modal */}
+        {showGestureHelp && (
+          <div className="fixed inset-0 backdrop-blur-sm bg-white/30 z-50 flex items-center justify-center px-4">
+            <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
+              <h2 className="text-xl font-bold text-[#1A3D61] mb-4">How to Use Gestures</h2>
+              <ul className="list-disc list-inside text-sm text-gray-700 space-y-2 mb-4">
+                <li><strong>👍 Thumb Up:</strong> Go to the next step</li>
+                <li><strong>👎 Thumb Down:</strong> Go to the previous step</li>
+                <li>Ensure you're in a well-lit area and your camera is facing you</li>
+              </ul>
+              <div className="flex justify-end">
                 <button
-                  onClick={() => setGesturesEnabled(false)}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg"
+                  onClick={() => setShowGestureHelp(false)}
+                  className="bg-[#1A3D61] text-white px-4 py-2 rounded-lg hover:bg-[#17405f] transition"
                 >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => window.location.reload()}
-                  className="px-4 py-2 bg-[#1A3D61] text-white rounded-lg"
-                >
-                  Try Again
+                  Got it!
                 </button>
               </div>
             </div>
           </div>
         )}
-      </div>
+      </div >
       : <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#1A3D61] mb-4"></div>
@@ -642,7 +649,5 @@ const GuidePage = () => {
       </div>
   );
 };
-
-
 
 export default GuidePage;

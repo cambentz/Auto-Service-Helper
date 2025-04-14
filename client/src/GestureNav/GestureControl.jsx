@@ -155,12 +155,12 @@ const GestureControl = ({
           console.error("Failed to initialize gesture control:", error);
           setHasError(true);
         }
-      } else if (!isEnabled && initialized) {
-        // Stop webcam when gestures are disabled
-        console.log("Stopping gesture service");
+      } else if (!isEnabled) {
+        console.log("Disabling gestures and stopping webcam");
         gestureService.stopWebcam();
-        setInitialized(false);
+        setInitialized(false); // This is safe even if it was false already
       }
+      
     };
     
     setupGestureRecognition();
@@ -168,10 +168,9 @@ const GestureControl = ({
     // Cleanup when component unmounts or when disabled
     return () => {
       if (errorCheckTimeout) clearTimeout(errorCheckTimeout);
-      if (initialized) {
-        gestureService.stopWebcam();
-      }
+      gestureService.stopWebcam(); // Always stop webcam on unmount or disable
     };
+    
   }, [isEnabled, initialized, isMobile, forceMobile]);
   
   // Monitor video element for errors
@@ -213,8 +212,32 @@ const GestureControl = ({
   // Render minimized view for mobile if minimized
   if (isMobile && minimized) {
     return (
+      <>
+        {/* Keep video and canvas mounted but completely hidden */}
+        <div className="hidden">
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            width="640"
+            height="480"
+          />
+          <canvas
+            ref={canvasRef}
+            width="640"
+            height="480"
+          />
+        </div>
+      </>
+    );
+  }
+  
+  /*
+  // This was changed to get rid of little square if it doesn't work revert this block back to what it was before
+  if (isMobile && minimized) {
+    return (
       <div className={panelClass}>
-        {/* Keep video and canvas in DOM but visually hidden */}
         <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', width: '1px', height: '1px', overflow: 'hidden', left: '-9999px' }}>
           <video
             ref={videoRef}
@@ -230,19 +253,10 @@ const GestureControl = ({
             height="480"
           ></canvas>
         </div>
-  
-        {/* <button
-          onClick={toggleMinimized}
-          className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
-          aria-label="Expand Gesture Controls"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
-          </svg>
-        </button> */}
       </div>
     );
   }
+  */
   
   // Full view
   return (
