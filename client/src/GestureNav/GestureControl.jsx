@@ -131,12 +131,12 @@ const GestureControl = ({
           return;
         }
         
-        // // Set mobile mode explicitly if provided, otherwise use component's isMobile prop
-        // if (forceMobile !== null) {
-        //   gestureService.setMobileMode(forceMobile);
-        // } else if (isMobile !== undefined) {
-        //   gestureService.setMobileMode(isMobile);
-        // }
+        // Set mobile mode explicitly if provided, otherwise use component's isMobile prop
+        if (forceMobile !== null) {
+          gestureService.setMobileMode(forceMobile);
+        } else if (isMobile !== undefined) {
+          gestureService.setMobileMode(isMobile);
+        }
 
         // Initialize service with our elements and callbacks
         const success = await gestureService.initialize(
