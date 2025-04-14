@@ -56,7 +56,7 @@ class GestureService {
     try {
       console.log("Loading MediaPipe vision tasks...");
       const vision = await FilesetResolver.forVisionTasks(
-        "/node_modules/@mediapipe/tasks-vision/wasm"
+        "mediapipe/wasm"
       );
       
       this.gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
