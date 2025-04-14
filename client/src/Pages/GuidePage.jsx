@@ -26,7 +26,7 @@ const GuidePage = () => {
   const [gesturesEnabled, setGesturesEnabled] = useState(false);
   const [navigationCooldown, setNavigationCooldown] = useState(false);
 
-  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  
   const [cameraPermissionStatus, setCameraPermissionStatus] = useState("unknown");
   const [requestingCamera, setRequestingCamera] = useState(false);
 
@@ -283,9 +283,7 @@ const GuidePage = () => {
       setRequestingCamera(false);
     }
   }, [gesturesEnabled, requestingCamera]);
-  const toggleBottomSheet = useCallback(() => {
-    setBottomSheetOpen(prev => !prev);
-  }, []);
+ 
   return (
     steps.length > 0 ?
       <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">
@@ -360,14 +358,7 @@ const GuidePage = () => {
                   {isMobile ? (gesturesEnabled ? "👋 Off" : "👋 On") : (gesturesEnabled ? "Disable Gestures" : "Enable Gestures")}
                 </button>
 
-                {isMobile && (
-                  <button
-                    onClick={toggleBottomSheet}
-                    className="px-3 py-1 text-sm bg-gray-100 text-gray-800 hover:bg-gray-200 rounded-lg transition font-medium"
-                  >
-                    {bottomSheetOpen ? "Hide Info" : "More Info"}
-                  </button>
-                )}
+                
               </div>
             </div>
           </div>
@@ -542,51 +533,7 @@ const GuidePage = () => {
                 </div>
               )}
 
-              {/* Bottom information sheet for mobile */}
-              {isMobile && (
-                <div className={`fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10 transition-transform duration-300 ${bottomSheetOpen ? "translate-y-0" : "translate-y-full"
-                  }`}>
-                  <div className="p-4">
-                    <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-4" />
-                    <h3 className="font-bold text-lg text-[#1A3D61] mb-2">Guide Information</h3>
-                    <p className="text-sm text-gray-700 mb-3">{guide.description || "Complete each step carefully for best results."}</p>
-
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-green-100 text-green-800">
-                        Difficulty: Easy
-                      </span>
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-800">
-                        Time: ~30 minutes
-                      </span>
-                      <span className="px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800">
-                        Skills: Beginner
-                      </span>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-3">
-                      <h4 className="font-medium text-sm mb-2">All Steps:</h4>
-                      <div className="max-h-48 overflow-y-auto">
-                        {steps.map((step, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              jumpToStep(index);
-                              setBottomSheetOpen(false);
-                            }}
-                            className={`w-full text-left p-2 mb-1 rounded text-sm ${currentStep === index
-                                ? "bg-[#1A3D61] text-white"
-                                : "bg-gray-100 text-gray-800"
-                              }`}
-                          >
-                            Step {index + 1}: {step.description.substring(0, 40)}
-                            {step.description.length > 40 ? "..." : ""}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+          
 
               <AnimatePresence mode="wait">
                 <motion.div
