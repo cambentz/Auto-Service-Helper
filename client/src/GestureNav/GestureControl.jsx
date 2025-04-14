@@ -83,16 +83,16 @@ const GestureControl = ({
     setMinimized(prev => !prev);
   };
   useEffect(() => {
-    // When minimizing or expanding, make sure the gesture recognition continues
-    if (initialized && minimized) {
-      console.log("Component minimized, ensuring gesture recognition continues");
-      // Small delay to let DOM changes complete
-      setTimeout(() => {
-        // Restart the gesture recognition loop
-        gestureService.restartLoop();
-      }, 300);
-    }
-  }, [minimized, initialized]);
+  // When minimizing or expanding, make sure the gesture recognition continues
+  if (initialized && minimized) {
+    console.log("Component minimized, ensuring gesture recognition continues");
+    // Small delay to let DOM changes complete
+    setTimeout(() => {
+      // Restart the gesture recognition loop
+      gestureService.restartLoop();
+    }, 300);
+  }
+}, [minimized, initialized]);
   // watches for minimized state changes
   // useEffect(() => {
   //   // Only handle the case when going from minimized to expanded
@@ -204,7 +204,7 @@ const GestureControl = ({
   // Don't render anything if gestures are disabled
   if (!isEnabled) return null;
   
-  // // Determine panel class based on mobile status
+  // Determine panel class based on mobile status
   // const panelClass = isMobile 
   //   ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
   //     (minimized ? " w-12 h-12" : " w-56")
@@ -231,7 +231,7 @@ const GestureControl = ({
   //         ></canvas>
   //       </div>
   
-  //       {/* <button
+  //       <button
   //         onClick={toggleMinimized}
   //         className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
   //         aria-label="Expand Gesture Controls"
@@ -239,29 +239,29 @@ const GestureControl = ({
   //         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   //           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
   //         </svg>
-  //       </button> */}
+  //       </button>
   //     </div>
   //   );
   // }
   
-  // // Full view
-  // return (
-  //   <div className={panelClass + " transition-all duration-300"}>
-  //     {/* Header with minimize button for mobile */}
-  //     {isMobile && initialized && (
-  //       <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
-  //         <span className="text-sm font-medium">Gesture Controls</span>
-  //         <button
-  //           onClick={toggleMinimized}
-  //           className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
-  //           aria-label="Minimize Gesture Controls"
-  //         >
-  //           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  //             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  //           </svg>
-  //         </button>
-  //       </div>
-  //     )}
+  // Full view
+  return (
+    <div>
+      {/* Header with minimize button for mobile */}
+      {/* {isMobile && initialized && (
+        <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
+          <span className="text-sm font-medium">Gesture Controls</span>
+          <button
+            onClick={toggleMinimized}
+            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
+            aria-label="Minimize Gesture Controls"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+      )} */}
       
       {/* Video and canvas container */}
       <div className="relative w-full bg-gray-900 overflow-hidden" style={{ height: '160px' }}>
