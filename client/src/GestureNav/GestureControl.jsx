@@ -231,7 +231,7 @@ const GestureControl = ({
           ></canvas>
         </div>
   
-        <button
+        {/* <button
           onClick={toggleMinimized}
           className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
           aria-label="Expand Gesture Controls"
@@ -239,7 +239,7 @@ const GestureControl = ({
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 11.5V14m0-2.5v-6a2 2 0 014 0v6m-4 0h4m-4 0h0m-2 3a2 2 0 104 0 2 2 0 00-4 0z" />
           </svg>
-        </button>
+        </button> */}
       </div>
     );
   }
