@@ -17,7 +17,7 @@ const GestureControl = ({
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
+  const [minimized, setMinimized] = useState(false); // Start minimized on mobile
   
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
@@ -79,7 +79,11 @@ const GestureControl = ({
   
   // Toggle minimized state
   const toggleMinimized = () => {
-    setMinimized(prev => !prev);
+    if (initialized) {
+      setMinimized(prev => !prev);
+    } else {
+      console.log("Cannot minimize until camera is initialized");
+    }
   };
 
   // Initialize gesture service when enabled
@@ -91,8 +95,9 @@ const GestureControl = ({
         try {
           console.log("Initializing gesture service");
           setHasError(false);
-          
+          setMinimized(false);
           // Initialize service with our elements and callbacks
+          await new Promise(resolve => setTimeout(resolve, 500));
           const success = await gestureService.initialize(
             videoRef.current,
             canvasRef.current,
@@ -195,10 +200,10 @@ const GestureControl = ({
   return (
     <div className={panelClass + " transition-all duration-300"}>
       {/* Header with minimize button for mobile */}
-      {isMobile && (
+      {isMobile && initialized && (
         <div className="bg-[#1A3D61] text-white p-2 flex justify-between items-center">
           <span className="text-sm font-medium">Gesture Controls</span>
-          <button 
+          <button
             onClick={toggleMinimized}
             className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[#17405f]"
             aria-label="Minimize Gesture Controls"
