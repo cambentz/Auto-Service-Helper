@@ -84,25 +84,25 @@ const GestureControl = ({
   };
   
   // watches for minimized state changes
-  useEffect(() => {
-    // Only handle the case when going from minimized to expanded
-    if (initialized && !minimized && videoRef.current && canvasRef.current) {
-      console.log("Component expanded, checking webcam status");
+  // useEffect(() => {
+  //   // Only handle the case when going from minimized to expanded
+  //   if (initialized && !minimized && videoRef.current && canvasRef.current) {
+  //     console.log("Component expanded, checking webcam status");
 
-      // Check if video is active
-      const isVideoActive = videoRef.current.srcObject !== null &&
-        !videoRef.current.paused &&
-        videoRef.current.readyState > 1;
+  //     // Check if video is active
+  //     const isVideoActive = videoRef.current.srcObject !== null &&
+  //       !videoRef.current.paused &&
+  //       videoRef.current.readyState > 1;
 
-      if (!isVideoActive) {
-        console.log("Video inactive after expansion, restarting webcam");
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-          resetWebcam();
-        }, 300);
-      }
-    }
-  }, [minimized, initialized]);
+  //     if (!isVideoActive) {
+  //       console.log("Video inactive after expansion, restarting webcam");
+  //       // Small delay to ensure DOM is ready
+  //       setTimeout(() => {
+  //         resetWebcam();
+  //       }, 300);
+  //     }
+  //   }
+  // }, [minimized, initialized]);
   
   // Initialize gesture service when enabled
   useEffect(() => {
@@ -220,7 +220,7 @@ const GestureControl = ({
             height="480"
           ></canvas>
         </div>
-
+  
         <button
           onClick={toggleMinimized}
           className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
