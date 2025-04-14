@@ -26,6 +26,10 @@ const GuidePage = () => {
   const [gesturesEnabled, setGesturesEnabled] = useState(false);
   const [navigationCooldown, setNavigationCooldown] = useState(false);
 
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [cameraPermissionStatus, setCameraPermissionStatus] = useState("unknown");
+  const [requestingCamera, setRequestingCamera] = useState(false);
+
 
   useEffect(() => {
     axios.get(API_ENDPOINT + "/guides/" + guideId)
@@ -228,7 +232,9 @@ const GuidePage = () => {
   const toggleGestures = useCallback(() => {
     setGesturesEnabled(prev => !prev);
   }, []);
-
+  const toggleBottomSheet = useCallback(() => {
+    setBottomSheetOpen(prev => !prev);
+  }, []);
   return (
     steps.length > 0 ?
       <div className="bg-[#F8F8F8] text-black w-full overflow-x-hidden">

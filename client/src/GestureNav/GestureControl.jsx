@@ -5,7 +5,7 @@ const GestureControl = ({
   isEnabled, 
   onToggle,
   onGestureDetected,
-  instructions = [] // Array of gesture instructions to display
+  instructions = [], // Array of gesture instructions to display
   isMobile = false,  // Added prop for mobile detection
   forceMobile = null // Added prop to explicitly override detection
 }) => {
