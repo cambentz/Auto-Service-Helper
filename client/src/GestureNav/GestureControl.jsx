@@ -17,7 +17,7 @@ const GestureControl = ({
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
+  const [minimized, setMinimized] = useState(false); // Start minimized on mobile
   
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
@@ -128,6 +128,12 @@ const GestureControl = ({
             setInitialized(true);
             await gestureService.startWebcam();
             
+            if (isMobile) {
+              setTimeout(() => {
+                setMinimized(true);
+              }, 1000);
+            }
+
             // Set up automatic error checking
             errorCheckTimeout = setTimeout(() => {
               if (videoRef.current && (!videoRef.current.videoWidth || !videoRef.current.videoHeight)) {
@@ -209,11 +215,13 @@ const GestureControl = ({
             autoPlay
             playsInline
             muted
-            style={{ width: '640px', height: '480px' }}
+            width="640"
+            height="480"
           ></video>
           <canvas
             ref={canvasRef}
-            style={{ width: '640px', height: '480px' }}
+            width="640"
+            height="480"
           ></canvas>
         </div>
 
