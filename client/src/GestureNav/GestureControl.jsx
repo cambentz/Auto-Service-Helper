@@ -80,7 +80,24 @@ const GestureControl = ({
   // Toggle minimized state
   const toggleMinimized = () => {
     if (initialized) {
-      setMinimized(prev => !prev);
+      const willBeMinimized = !minimized;
+      
+      // When going from minimized to expanded, we'll do a quick check
+      if (!willBeMinimized) {
+        // We're expanding from minimized state
+        console.log("Expanding gesture control");
+        
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          // Check if gesture detection is still active
+          if (videoRef.current && (!videoRef.current.srcObject || videoRef.current.paused)) {
+            console.log("Video inactive after expanding, restarting webcam");
+            resetWebcam();
+          }
+        }, 300);
+      }
+      
+      setMinimized(willBeMinimized);
     } else {
       console.log("Cannot minimize until camera is initialized");
     }
@@ -201,10 +218,26 @@ const GestureControl = ({
 
      
   // Render minimized view for mobile if minimized
+  // Render minimized view for mobile if minimized
   if (isMobile && minimized) {
     return (
       <div className={panelClass}>
-        <button 
+        {/* Keep video and canvas in DOM but visually hidden */}
+        <div className="absolute opacity-0 pointer-events-none invisible" style={{ height: '1px', width: '1px', overflow: 'hidden' }}>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
+            className="w-full h-full object-cover"
+          ></video>
+          <canvas
+            ref={canvasRef}
+            className="absolute top-0 left-0 w-full h-full"
+          ></canvas>
+        </div>
+
+        <button
           onClick={toggleMinimized}
           className="w-12 h-12 flex items-center justify-center bg-[#1A3D61] text-white rounded-lg"
           aria-label="Expand Gesture Controls"
@@ -215,7 +248,7 @@ const GestureControl = ({
         </button>
       </div>
     );
-  } 
+  }
   return (
     <div className={panelClass + " transition-all duration-300"}>
       {/* Header with minimize button for mobile */}
