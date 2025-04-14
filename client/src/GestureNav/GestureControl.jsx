@@ -128,11 +128,7 @@ const GestureControl = ({
             setInitialized(true);
             await gestureService.startWebcam();
             
-            if (isMobile) {
-              setTimeout(() => {
-                setMinimized(true);
-              }, 1000);
-            }
+          
 
             // Set up automatic error checking
             errorCheckTimeout = setTimeout(() => {
