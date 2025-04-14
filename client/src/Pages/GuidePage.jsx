@@ -126,6 +126,7 @@ const GuidePage = () => {
     currentStepRef.current = currentStep;
     console.log("currentStep updated to:", currentStep + 1);
   }, [currentStep]);
+  
   // Navigation functions with useCallback for better performance
   const goToNextStep = useCallback(() => {
     if (currentStepRef.current < steps.length - 1 && !isTransitioning && !navigationCooldown) {
@@ -230,8 +231,58 @@ const GuidePage = () => {
 
   // Toggle gesture recognition
   const toggleGestures = useCallback(() => {
-    setGesturesEnabled(prev => !prev);
-  }, []);
+    if (requestingCamera) {
+      console.log("Camera permission request already in progress");
+      return;
+    }
+
+    if (!gesturesEnabled) {
+      // If enabling, first ask for camera permission
+      try {
+        console.log("Requesting camera permission");
+        setRequestingCamera(true);
+
+        navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: "user", // Front camera
+            width: { ideal: 640 },
+            height: { ideal: 480 }
+          }
+        })
+          .then(stream => {
+            // Stop the stream immediately, we just needed permission
+            stream.getTracks().forEach(track => track.stop());
+
+            // Update state
+            setCameraPermissionStatus("granted");
+            setGesturesEnabled(true);
+            console.log("Camera permission granted, gestures enabled");
+
+            // Force a delay before allowing further requests
+            setTimeout(() => {
+              setRequestingCamera(false);
+            }, 1000);
+          })
+          .catch(err => {
+            console.error("Camera permission denied:", err);
+            setCameraPermissionStatus("denied");
+            setRequestingCamera(false);
+
+            // Show a notification to the user
+            alert("Camera access is required for gesture controls. Please enable camera access in your browser settings.");
+          });
+      } catch (e) {
+        console.error("Error requesting camera:", e);
+        setGesturesEnabled(false);
+        setRequestingCamera(false);
+      }
+    } else {
+      // Just disable gestures
+      console.log("Disabling gestures");
+      setGesturesEnabled(false);
+      setRequestingCamera(false);
+    }
+  }, [gesturesEnabled, requestingCamera]);
   const toggleBottomSheet = useCallback(() => {
     setBottomSheetOpen(prev => !prev);
   }, []);

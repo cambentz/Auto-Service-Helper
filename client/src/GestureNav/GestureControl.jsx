@@ -5,7 +5,7 @@ const GestureControl = ({
   isEnabled, 
   onToggle,
   onGestureDetected,
-  instructions = [], // Array of gesture instructions to display
+  instructions = [], 
   isMobile = false,  // Added prop for mobile detection
   forceMobile = null // Added prop to explicitly override detection
 }) => {
@@ -17,7 +17,7 @@ const GestureControl = ({
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [minimized, setMinimized] = useState(false); // Start minimized on mobile
+  const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
   
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
@@ -82,6 +82,7 @@ const GestureControl = ({
     // This allows gesture detection to continue working in the background
     setMinimized(prev => !prev);
   };
+  
   // watches for minimized state changes
   useEffect(() => {
     // Only handle the case when going from minimized to expanded
@@ -102,6 +103,7 @@ const GestureControl = ({
       }
     }
   }, [minimized, initialized]);
+  
   // Initialize gesture service when enabled
   useEffect(() => {
     let errorCheckTimeout;
@@ -111,7 +113,7 @@ const GestureControl = ({
         try {
           console.log("Initializing gesture service");
           setHasError(false);
-          setMinimized(false);
+          
           // Initialize service with our elements and callbacks
           await new Promise(resolve => setTimeout(resolve, 500));
           const success = await gestureService.initialize(
@@ -145,6 +147,7 @@ const GestureControl = ({
         // Stop webcam when gestures are disabled
         console.log("Stopping gesture service");
         gestureService.stopWebcam();
+        setInitialized(false);
       }
     };
     
@@ -189,31 +192,28 @@ const GestureControl = ({
   // Don't render anything if gestures are disabled
   if (!isEnabled) return null;
   
-
-    // Determine panel class based on mobile status
-    const panelClass = isMobile 
+  // Determine panel class based on mobile status
+  const panelClass = isMobile 
     ? "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden" + 
       (minimized ? " w-12 h-12" : " w-56")
     : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
-
-     
   
   // Render minimized view for mobile if minimized
   if (isMobile && minimized) {
     return (
       <div className={panelClass}>
         {/* Keep video and canvas in DOM but visually hidden */}
-        <div className="absolute opacity-0 pointer-events-none" style={{width: '1px', height: '1px', overflow: 'hidden' }}>
+        <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', width: '1px', height: '1px', overflow: 'hidden', left: '-9999px' }}>
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            style={{width: '640px', height: '480px'}}
+            style={{ width: '640px', height: '480px' }}
           ></video>
           <canvas
             ref={canvasRef}
-            style={{width: '640px', height: '480px'}}
+            style={{ width: '640px', height: '480px' }}
           ></canvas>
         </div>
 
@@ -229,6 +229,8 @@ const GestureControl = ({
       </div>
     );
   }
+  
+  // Full view
   return (
     <div className={panelClass + " transition-all duration-300"}>
       {/* Header with minimize button for mobile */}
