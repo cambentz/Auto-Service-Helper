@@ -17,7 +17,7 @@ const GestureControl = ({
   const [gestureOutput, setGestureOutput] = useState(null);
   const [initialized, setInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
-  const [minimized, setMinimized] = useState(false); // Start minimized on mobile
+  const [minimized, setMinimized] = useState(isMobile); // Start minimized on mobile
   
   // Default gesture instructions if none provided
   const displayInstructions = instructions.length > 0 ? instructions : [
@@ -82,7 +82,17 @@ const GestureControl = ({
     // This allows gesture detection to continue working in the background
     setMinimized(prev => !prev);
   };
-  
+  useEffect(() => {
+    // When minimizing or expanding, make sure the gesture recognition continues
+    if (initialized && minimized) {
+      console.log("Component minimized, ensuring gesture recognition continues");
+      // Small delay to let DOM changes complete
+      setTimeout(() => {
+        // Restart the gesture recognition loop
+        gestureService.restartLoop();
+      }, 300);
+    }
+  }, [minimized, initialized]);
   // watches for minimized state changes
   // useEffect(() => {
   //   // Only handle the case when going from minimized to expanded
