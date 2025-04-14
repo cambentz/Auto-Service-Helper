@@ -85,7 +85,26 @@ const GestureControl = ({
       console.log("Cannot minimize until camera is initialized");
     }
   };
+  // watches for minimized state changes
+  useEffect(() => {
+    // Only handle the case when going from minimized to expanded
+    if (initialized && !minimized && videoRef.current && canvasRef.current) {
+      console.log("Component expanded, checking webcam status");
 
+      // Check if video is active
+      const isVideoActive = videoRef.current.srcObject !== null &&
+        !videoRef.current.paused &&
+        videoRef.current.readyState > 1;
+
+      if (!isVideoActive) {
+        console.log("Video inactive after expansion, restarting webcam");
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          resetWebcam();
+        }, 300);
+      }
+    }
+  }, [minimized, initialized]);
   // Initialize gesture service when enabled
   useEffect(() => {
     let errorCheckTimeout;
