@@ -79,28 +79,8 @@ const GestureControl = ({
   
   // Toggle minimized state
   const toggleMinimized = () => {
-    if (initialized) {
-      const willBeMinimized = !minimized;
-      
-      // When going from minimized to expanded, we'll do a quick check
-      if (!willBeMinimized) {
-        // We're expanding from minimized state
-        console.log("Expanding gesture control");
-        
-        // Small delay to ensure DOM is ready
-        setTimeout(() => {
-          // Check if gesture detection is still active
-          if (videoRef.current && (!videoRef.current.srcObject || videoRef.current.paused)) {
-            console.log("Video inactive after expanding, restarting webcam");
-            resetWebcam();
-          }
-        }, 300);
-      }
-      
-      setMinimized(willBeMinimized);
-    } else {
-      console.log("Cannot minimize until camera is initialized");
-    }
+    // This allows gesture detection to continue working in the background
+    setMinimized(prev => !prev);
   };
   // watches for minimized state changes
   useEffect(() => {
@@ -217,23 +197,23 @@ const GestureControl = ({
     : "gesture-control-panel shadow-lg rounded-lg bg-white border border-gray-200 overflow-hidden w-64";
 
      
-  // Render minimized view for mobile if minimized
+  
   // Render minimized view for mobile if minimized
   if (isMobile && minimized) {
     return (
       <div className={panelClass}>
         {/* Keep video and canvas in DOM but visually hidden */}
-        <div className="absolute opacity-0 pointer-events-none invisible" style={{ height: '1px', width: '1px', overflow: 'hidden' }}>
+        <div className="absolute opacity-0 pointer-events-none" style={{width: '1px', height: '1px', overflow: 'hidden' }}>
           <video
             ref={videoRef}
             autoPlay
             playsInline
             muted
-            className="w-full h-full object-cover"
+            style={{width: '640px', height: '480px'}}
           ></video>
           <canvas
             ref={canvasRef}
-            className="absolute top-0 left-0 w-full h-full"
+            style={{width: '640px', height: '480px'}}
           ></canvas>
         </div>
 
