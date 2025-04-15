@@ -1,7 +1,7 @@
 const privacyContent = `
 Privacy Policy
 
-Effective Date: March 31, 2025
+Effective Date: April 18, 2025
 
 Gesture Garage ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect the personal information you provide when using our web application.
 
