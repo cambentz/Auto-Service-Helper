@@ -214,7 +214,7 @@ const Guides = () => {
                     {/* Guide Preview Image or Fallback */}
                     {guide.media ? (
                       <img
-                        src={guide.media}
+                        src={guide.thumbnail}
                         alt={guide.name}
                         className="h-40 w-full object-cover"
                       />
