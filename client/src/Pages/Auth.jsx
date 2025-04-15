@@ -106,7 +106,7 @@ const Auth = () => {
       // TODO: Replace mock login with real API call when backend is ready
       if (mode === "login") {
         const savedFirst = localStorage.getItem("userName");
-        login(savedFirst || "Gary");
+        login(savedFirst || "Guest");
         navigate("/garage");
       }
       else if (mode === "register") {
