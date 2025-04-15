@@ -102,7 +102,7 @@ const Settings = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                 <input
                   type="email"
-                  value="gary@email.com"
+                  value="guest@email.com"
                   disabled
                   className="w-full px-4 py-2 border border-gray-200 rounded-md bg-gray-100 text-gray-600 cursor-not-allowed"
                 />
