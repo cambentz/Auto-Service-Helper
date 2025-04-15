@@ -212,7 +212,7 @@ const Guides = () => {
                 <FadeInOnView key={guide.guide_id} delay={0.1 * (index % 3)}>
                   <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition flex flex-col h-full">
                     {/* Guide Preview Image or Fallback */}
-                    {guide.media ? (
+                    {guide.thumbnail ? (
                       <img
                         src={guide.thumbnail}
                         alt={guide.name}
