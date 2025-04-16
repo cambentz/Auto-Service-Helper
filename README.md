@@ -32,7 +32,7 @@ This project addresses the challenge of interacting with repair guides in enviro
 - dotenv for environment variables
 
 **Deployment**
-- Render (Static Site for frontend)
+- Render Static Site (for frontend)
 - Render Web Service (for backend)
 - Supabase for database and media storage
 
