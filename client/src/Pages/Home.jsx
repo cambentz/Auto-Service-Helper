@@ -185,17 +185,29 @@ const Home = () => {
       </section >
       {/* Footer */}
       <footer className="w-full bg-[#1A3D61] text-white py-8 px-6 sm:px-12 mt-12">
-        <div className="max-w-6xl mx-auto text-center">
-          <h4 className="text-lg font-semibold mb-2">Gesture Garage</h4>
-          <p className="text-sm text-gray-300">
-            Built with care by students at University of Michigan-Flint.
-          </p>
-          <p className="text-sm text-gray-400 mt-2">
-            © {new Date().getFullYear()} Gesture Garage. All rights reserved.
-          </p>
-        </div>
-      </footer>
+  <div className="max-w-6xl mx-auto text-center">
+    <h4 className="text-lg font-semibold mb-2">Gesture Garage</h4>
+    <p className="text-sm text-gray-300">
+      Built with care by students at University of Michigan-Flint.
+    </p>
 
+    {/* GitHub Link */}
+    <p className="mt-3">
+      <a
+        href="https://github.com/cambentz/Auto-Service-Helper"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-purple-400 hover:text-purple-300 underline transition"
+      >
+        View our project on GitHub
+      </a>
+    </p>
+
+    <p className="text-sm text-gray-400 mt-4">
+      © {new Date().getFullYear()} Gesture Garage. All rights reserved.
+    </p>
+  </div>
+</footer>
     </div >
   );
 };
