@@ -183,19 +183,19 @@ const Home = () => {
           </div>
         </div>
       </section >
-
-      {/* Partners */}
-      < section className="w-full py-16 px-6 sm:px-12 bg-white text-center" >
-        <h2 className="text-2xl font-bold text-[#1A3D61] mb-4">Our Partners</h2>
-        <p className="mb-10 text-gray-600">
-          We collaborate with leading tech providers, parts manufacturers, and community infrastructure partners.
-        </p>
-        <div className="flex flex-wrap justify-center items-center gap-12">
-          <img src={partner1} alt="Partner 1" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
-          <img src={partner2} alt="Partner 2" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
-          <img src={partner3} alt="Partner 3" className="h-10 md:h-12 object-contain grayscale hover:grayscale-0 transition" />
+      {/* Footer */}
+      <footer className="w-full bg-[#1A3D61] text-white py-8 px-6 sm:px-12 mt-12">
+        <div className="max-w-6xl mx-auto text-center">
+          <h4 className="text-lg font-semibold mb-2">Gesture Garage</h4>
+          <p className="text-sm text-gray-300">
+            Built with care by students at University of Michigan-Flint.
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            © {new Date().getFullYear()} Gesture Garage. All rights reserved.
+          </p>
         </div>
-      </section >
+      </footer>
+
     </div >
   );
 };

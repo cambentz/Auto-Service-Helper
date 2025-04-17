@@ -1,7 +1,7 @@
 const termsContent = `
 Terms of Service
 
-Effective Date: March 31, 2025
+Effective Date: April 18, 2025
 
 Welcome to Gesture Garage. By using our services, you agree to the following terms:
 
